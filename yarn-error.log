@@ -1,0 +1,63 @@
+Arguments: 
+  /nix/store/7ppnyqmp1c92gkfrixbz99sw7q6ifkg1-nodejs-18.12.1/bin/node /nix/store/dnc48m9i30fvk6xaa9h8mn4qxyyy1yc3-yarn-1.22.19/bin/yarn add purescript-sequences
+
+PATH: 
+  /home/kento/.npm-global/bin:/nix/store/g2nfbpind37b3v3y6zbszmcgfmrj5v7x-patchelf-0.15.0/bin:/nix/store/wn31i3dzwahz6ccws8bs1nwyqrpgsvj7-gcc-wrapper-11.3.0/bin:/nix/store/sxdx80lmk4zkhb51f4x5dgqvxgmx55wl-gcc-11.3.0/bin:/nix/store/s7ip867mrpnnjlppbnxlcsq10gv13x2x-glibc-2.35-224-bin/bin:/nix/store/h8gvq6r4hgpa71h44dmg9qfx03mj81sv-coreutils-9.1/bin:/nix/store/62fb427ncxaaksa2k59rhbilfg68v20x-binutils-wrapper-2.39/bin:/nix/store/frh9l9nrdysasdi2gs7i241s241ngjw2-binutils-2.39/bin:/nix/store/ljc17xnd92y1n1gvc9gnwy2xr48sz9dx-ocaml4.14.0-ppx_jane-0.15.0/bin:/nix/store/vg5mbr0rdgs1qvxj3c5hpshnsl1samf3-ocaml4.14.0-ppx_base-0.15.0/bin:/nix/store/4ms3idkiqjhzzby2prmfs1anw74qljj9-ocaml4.14.0-js_of_ocaml-compiler-4.1.0/bin:/nix/store/6bz7bwpcbx1h9941232y1apscl8bvcld-ocaml4.14.0-yojson-2.0.2/bin:/nix/store/k5zfrnb7ahrgfv0n8fk6lpq67agq622d-ocaml4.14.0-gen_js_api-1.1.1/bin:/nix/store/amqmij5zb4mgszmi4fljp1d0la4j4hqf-ocaml4.14.0-uutf-1.0.3/bin:/nix/store/wc9by8vcdwfpp3j84y15i0db154bzd2h-ocaml4.14.0-sexp-0.15.0/bin:/nix/store/nx7f5dhglvpf4v4rgrp3jhb9bdic76qx-ocaml4.14.0-core_unix-0.15.2/bin:/nix/store/kx6isgzanwrfx2060m1s27ng23y06b7x-ocaml4.14.0-reason-3.8.2/bin:/nix/store/san9a0sszijwdcgzkazlwpirjf3l6rgh-dune-3.6.1/bin:/nix/store/0s9cgmzhd2qwnfpvin3acn63il0035jm-purs-tidy-0.9.2/bin:/nix/store/d5gpcxcgblb016w7cam62r7py7mivmpx-spago-0.20.9/bin:/nix/store/y6kx4qc2l0vpxc150hzxjcy97ba7a7d0-purescript-0.15.7/bin:/nix/store/s39df72kkchza72ml6ndpl3la8s15z52-racket-8.7/bin:/nix/store/8asqgnhs89wzyjvs8p1n5hvxn7lkn9wa-opam-2.1.3/bin:/nix/store/h47rb064n6h033jbwq7zr9wsdkd85lgz-ocaml-4.14.0/bin:/nix/store/vwnpvy759c4gyzvk6kphy7bh0kfznhsc-rustc-1.65.0/bin:/nix/store/2g4vqg9dl31rbiv6fh87ihz2ga5qiy6c-rustup-1.25.1/bin:/nix/store/zfb33jqln3y5569vf2fc6cjfp0p615x6-cargo-1.65.0/bin:/nix/store/cac4syv9mbl2jfsi7ckvcbffrha536yg-cargo-make-0.36.3/bin:/nix/store/97l65fdp1cpmgb2w6mppxal721847np5-typescript-4.9.3/bin:/nix/store/idc80c1893y1mbfg98v9kphc03rjd1in-autoconf-2.71/bin:/nix/store/clzc3s59i36aqrkcn92bj54nh6gn0sx6-automake-1.16.5/bin:/nix/store/sjs7szvhvyjzlmgzqn7g1la2bkl5kqjz-libtool-2.4.7/bin:/nix/store/bbzlsi80wzjls6p34p3x41f5s2l6akds-gnum4-1.4.19/bin:/nix/store/qss2l7hpp4km2msil0g1xfg82774h81v-file-5.43/bin:/nix/store/dnc48m9i30fvk6xaa9h8mn4qxyyy1yc3-yarn-1.22.19/bin:/nix/store/al6g1zbk8li6p8mcyp0h60d08jaahf8c-python3-3.10.9/bin:/nix/store/7i4hxhw44lr7r64zlmp4zq7cqpsx7smw-devenv/bin:/nix/store/6m1n588zdbx5grxwmipw4rvanc5g5b3b-stack-2.9.1/bin:/nix/store/yk71rn29alks51ip84x8fwwxm6fm607v-nodenv-1.4.0/bin:/nix/store/a7ank8ha3vybqc4k1dly0n1aan6g080m-pnpm-7.18.0/bin:/nix/store/rx74ih412j62qprhm59175p00sq70wq3-typescript-language-server-2.1.0/bin:/nix/store/xrds3ngx06abrb4s9qgq91a4dx44xg9s-vscode-css-languageserver-bin-1.4.0/bin:/nix/store/ckj4yp70wmv09b5sk4z9mvh83rv61ng3-unlit-0.4.0.0/bin:/nix/store/0m8n4nx67fw49lszdjqpydpji3pwam7v-cabal-install-3.8.1.0/bin:/nix/store/7lcxvc9lllxsmi3df9wlzwhymz7bim19-ghc-9.2.5/bin:/nix/store/9w9z152k2705zprwwpsd33xazybnwkd7-elm-0.19.1/bin:/nix/store/557z3xmm0ydy62q756ggdcgx92r97dlf-elm-test-0.19.1-revision10/bin:/nix/store/yyc8pmfy43nl2hwfb3n16rcd866nqki8-elm-format-0.8.5/bin:/nix/store/s4jj5a1yvwj75h8jykbpv3921vgypqhr-elm-review-2.8.2/bin:/nix/store/gx43mydy2c6s6bs7x86pznlh7jpmwp9g-_at_elm-tooling_slash_elm-language-server-2.5.2/bin:/nix/store/2iisasf64xng1zkic0gsmycs65007hkm-create-elm-app-5.22.0/bin:/nix/store/ifs2ghiwngx45a0bkq2lymf4gh8zdr9i-ncurses-6.3-p20220507/bin:/nix/store/h8gvq6r4hgpa71h44dmg9qfx03mj81sv-coreutils-9.1/bin:/nix/store/zml88vnkpm8if114qkbbqd1q7n3ypqqy-findutils-4.9.0/bin:/nix/store/49y3r0gr9m6k20d91kl6dgp4b9a6m72v-diffutils-3.8/bin:/nix/store/5dv5cq1lwvsijr9p16p2kp79g1dbajk3-gnused-4.8/bin:/nix/store/bcvccw6y9bfil6xrl5j7psza7hnd16ry-gnugrep-3.7/bin:/nix/store/l1fp0hyca54xbb85vfhppd16bskzx8dg-gawk-5.1.1/bin:/nix/store/89zbjdkb48ma61k76l2mzn3s0ra0wn2c-gnutar-1.34/bin:/nix/store/qs8qb1swpivkfq7i9yd52n0mw6z4ij81-gzip-1.12/bin:/nix/store/wwkyfg8b34xy16zzc9p6rkh59p4q37qx-bzip2-1.0.8-bin/bin:/nix/store/i0x4pzj96qwvkrm94317l6jbi53a2rdj-gnumake-4.4/bin:/nix/store/4xw8n979xpivdc46a9ndcvyhwgif00hz-bash-5.1-p16/bin:/nix/store/793iwfbjvg7wgpqq7r83a1qjl1yg02sf-patch-2.7.6/bin:/nix/store/a3mwv26f99ycsv9w6hrx0jjjjywvcb1n-xz-5.2.9-bin/bin:/nix/store/camlh5laf1wsklghk0vcaw7gvx4rpzd1-file-5.43/bin:/run/wrappers/bin:/home/kento/.nix-profile/bin:/etc/profiles/per-user/kento/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin:/home/kento/bin:/home/kento/.emacs.d/bin:/home/kento/.zsh/plugins/zsh-nix-shell
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.12.1
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/purescript-sequences: Not found
+      at params.callback [as _callback] (/nix/store/dnc48m9i30fvk6xaa9h8mn4qxyyy1yc3-yarn-1.22.19/libexec/yarn/lib/cli.js:66145:18)
+      at self.callback (/nix/store/dnc48m9i30fvk6xaa9h8mn4qxyyy1yc3-yarn-1.22.19/libexec/yarn/lib/cli.js:140890:22)
+      at Request.emit (node:events:513:28)
+      at Request.<anonymous> (/nix/store/dnc48m9i30fvk6xaa9h8mn4qxyyy1yc3-yarn-1.22.19/libexec/yarn/lib/cli.js:141862:10)
+      at Request.emit (node:events:513:28)
+      at IncomingMessage.<anonymous> (/nix/store/dnc48m9i30fvk6xaa9h8mn4qxyyy1yc3-yarn-1.22.19/libexec/yarn/lib/cli.js:141784:12)
+      at Object.onceWrapper (node:events:627:28)
+      at IncomingMessage.emit (node:events:525:35)
+      at endReadableNT (node:internal/streams/readable:1359:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+
+npm manifest: 
+  {
+    "scripts": {
+      "postinstall": "spago install",
+      "gen-css": "tailwindcss build css/tailwind_inputs.css -o src/tailwind.css && cat src/tailwind.css | python3 ./css/css2purs.py > src/Tailwind.purs",
+      "dev:spago": "spago build --watch",
+      "dev": "vite"
+    },
+    "devDependencies": {
+      "acorn": "^5.7.4",
+      "concurrently": "^7.6.0",
+      "elliptic": "^6.5.4",
+      "esbuild": "^0.13.9",
+      "lodash": "^4.17.21",
+      "mixin-deep": ">=1.3.2",
+      "request": "^2.88.0",
+      "safer-eval": "^1.3.6",
+      "set-value": "^4.0.1"
+    },
+    "dependencies": {
+      "postcss": "^8.4.21",
+      "react": "^17.0.2",
+      "react-dom": "^17.0.2",
+      "tailwindcss": "^3.2.6",
+      "todomvc-app-css": "^2.0.0",
+      "todomvc-common": "^1.0.0",
+      "vite": "^4.1.1"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
