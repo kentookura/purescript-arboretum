@@ -2,16 +2,17 @@ module Zipper where
 
 -- https://michaeldadams.org/papers/scrap_your_zippers/ScrapYourZippers-2010.pdf
 import Lib (css, (|>))
+import Data.Foldable
 import Prelude
 import Data.Maybe (Maybe(..))
 import Data.Bifunctor
 import Data.List
 import Data.Tuple
 import Control.Comonad
-import Halogen.HTML (HTML, text, span, div, input, button) as HH
+import Halogen.HTML (HTML(..), text, span, div, input, button, pre) as HH
 
 --data Zipper t a = Zipper (forall b. Seq b -> t b) Int (Seq a)
-type TermZipper = Tuple Term TermContext
+type TermZipper = { filler :: Term, context :: TermContext }
 
 data Term
   = Var String
@@ -31,83 +32,117 @@ data TermContext
 viewTerm :: Term -> String
 viewTerm t = case t of
   Var s -> s
-  Lambda s t -> "\ " <> s <> "( " <> viewTerm t <> " )"
-  App f x -> viewTerm f <> viewTerm x
-  If b t e -> "if "<> viewTerm b <> " then " <> viewTerm t <> " else " <> viewTerm e
+  Lambda s t -> foldl append mempty [ "\\", s, ".", viewTerm t ]
+  App f x -> foldl append mempty [ viewTerm f, " (", viewTerm x, ")" ]
+  If b t e -> foldl append mempty [ "if ", viewTerm b, " then ", viewTerm t, " else ", viewTerm e ]
 
-reverse :: forall a. List a -> List a
-reverse s = case s of
-  Nil -> Nil
-  Cons x  xs -> concat (Cons (reverse xs) Nil ) (Cons x Nil)
+viewHole :: forall w i. Term -> HH.HTML w i
+viewHole = viewTerm >>> HH.text
 
--- i = list to be reversed
--- o = already reversed
-helper :: forall a. List a -> List a -> List a 
-helper i o = case i of
-  Nil -> o
-  Cons x xs -> helper xs (concat o x)
+viewZipper :: TermZipper -> String
+viewZipper z = acc (z.context) (viewTerm z.filler)
+  where
+  acc :: TermContext -> String -> String
+  acc i o = case i of
+    Root -> foldl append mempty [ "{", o, "}" ]
+    (Lambda_1 s c) -> foldl append mempty [ "\\", s, ".", acc c o ]
+    (App_1 c t2) -> foldl append mempty [ acc c o, viewTerm t2 ]
+    (App_2 t1 c) -> foldl append mempty [ acc c o ]
+    (If_1 c t2 t3) -> foldl append mempty [ "if ", acc c o, " then ", viewTerm t2, "else ", viewTerm t3 ]
+    (If_2 t1 c t3) -> foldl append mempty [ "if ", viewTerm t1, " then ", acc c o, "else ", viewTerm t3 ]
+    (If_3 t1 t2 c) -> foldl append mempty [ "if ", viewTerm t1, " then ", viewTerm t2, "else ", acc c o ]
 
---viewZipper :: TermZipper -> String
---viewZipper z = case z of
---  (Tuple t Root) -> viewTerm t
---  (Tuple t1 (Lambda_1 s c)) -> 
---  (Tuple t1 (App_1 c t2)) -> 
---  (Tuple t2 (App_2 t1 c)) ->
---  (Tuple t1 (If_1 c t2 t3)) ->
---  (Tuple t2 (If_2 t1 c t3)) ->
---  (Tuple t3 (If_3 t1 t2 c)) ->
+renderZipper :: forall w i. TermZipper -> HH.HTML w i
+renderZipper z = HH.pre [] [ acc (z.context) (viewHole z.filler) ]
+  where
+  acc :: forall w i. TermContext -> HH.HTML w i -> HH.HTML w i
+  acc i o = case i of
+    Root -> HH.span [ css "bg-slate-100" ]
+      [ HH.text "{"
+      , o
+      , HH.text "}"
+      ]
+    Lambda_1 s c -> HH.span []
+      [ HH.text $ "\\" <> s <> "."
+      , acc c o
+      --, HH.text $ "\\" <> s <> "."
+      ]
+    App_1 c t2 -> HH.span []
+      [ acc c o
+      , HH.text $ viewTerm t2
+      ]
+    App_2 t1 c -> HH.span []
+      [ HH.text $ viewTerm t1, acc c o ]
+    If_1 c t2 t3 -> HH.span []
+      [ HH.text "if "
+      , acc c o
+      , HH.text $ " then " <> viewTerm t2 <> " else " <> viewTerm t3
+      ]
+    If_2 t1 c t3 -> HH.span []
+      [ HH.text $ "if " <> viewTerm t1 <> " then "
+      , acc c o
+      , HH.text $ " else " <> viewTerm t3
+      ]
+    If_3 t1 t2 c -> HH.span []
+      [ HH.text $ "if " <> viewTerm t1 <> " then " <> viewTerm t2 <> " else "
+      , acc c o
+      ]
 
 toZipper :: Term -> TermZipper
-toZipper t = Tuple t Root
+toZipper t = { filler: t, context: Root }
 
 getHole :: TermZipper -> Term
-getHole = fst
+getHole z = z.filler
 
 getContext :: TermZipper -> TermContext
-getContext = snd
+getContext z = z.context
 
 setHole :: Term -> TermZipper -> TermZipper
-setHole h (Tuple t c) = Tuple h c
+setHole h z = z { filler = h }
 
 fromZipper :: TermZipper -> Term
-fromZipper term = case term of
-  (Tuple t Root) -> t
-  (Tuple t1 (Lambda_1 s c)) -> fromZipper (Tuple (Lambda s t1) c)
-  (Tuple t1 (App_1 c t2)) -> fromZipper (Tuple (App t1 t2) c)
-  (Tuple t2 (App_2 t1 c)) -> fromZipper (Tuple (App t1 t2) c)
-  (Tuple t1 (If_1 c t2 t3)) -> fromZipper (Tuple (If t1 t2 t3) c)
-  (Tuple t2 (If_2 t1 c t3)) -> fromZipper (Tuple (If t1 t2 t3) c)
-  (Tuple t3 (If_3 t1 t2 c)) -> fromZipper (Tuple (If t1 t2 t3) c)
+fromZipper z = case z.context of
+  Root -> z.filler
+  Lambda_1 s c -> fromZipper { filler: Lambda s z.filler, context: c }
+  App_1 c t2 -> fromZipper { filler: App z.filler t2, context: c }
+  App_2 t1 c -> fromZipper { filler: App t1 z.filler, context: c }
+  If_1 c t2 t3 -> fromZipper { filler: If z.filler t2 t3, context: c }
+  If_2 t1 c t3 -> fromZipper { filler: If t1 z.filler t3, context: c }
+  If_3 t1 t2 c -> fromZipper { filler: If t1 t2 z.filler, context: c }
 
 down :: TermZipper -> Maybe TermZipper
-down (Tuple (Var s) c) = Nothing
-down (Tuple (Lambda s t) c) = Just (Tuple t (Lambda_1 s c))
-down (Tuple (App t1 t2) c) = Just (Tuple t1 (App_1 c t2))
-down (Tuple (If b t e) c) = Just (Tuple b (If_1 c t e))
+down z = case z.filler of
+  Var s -> Nothing
+  Lambda s t -> Just { filler: t, context: Lambda_1 s z.context }
+  App t1 t2 -> Just { filler: t1, context: App_1 z.context t2 }
+  If b t e -> Just { filler: b, context: If_1 z.context t e }
 
 up :: TermZipper -> Maybe TermZipper
-up (Tuple t1 (Root)) = Nothing
-up (Tuple t1 (Lambda_1 s c)) = Just (Tuple (Lambda s t1) c)
-up (Tuple t1 (App_1 c t2)) = Just (Tuple (App t1 t2) c)
-up (Tuple t1 (App_2 t2 c)) = Just (Tuple (App t1 t2) c)
-up (Tuple t1 (If_1 c t2 t3)) = Just (Tuple (If t1 t2 t3) c)
-up (Tuple t2 (If_2 t1 c t3)) = Just (Tuple (If t1 t2 t3) c)
-up (Tuple t3 (If_3 t1 t2 c)) = Just (Tuple (If t1 t2 t3) c)
+up z = case z.context of
+  Root -> Nothing
+  Lambda_1 s c -> Just { filler: Lambda s z.filler, context: c }
+  App_1 c t2 -> Just { filler: App z.filler t2, context: c }
+  App_2 t1 c -> Just { filler: App t1 z.filler, context: c }
+  If_1 c t2 t3 -> Just { filler: If z.filler t2 t3, context: c }
+  If_2 t1 c t3 -> Just { filler: If t1 z.filler t3, context: c }
+  If_3 t1 t2 c -> Just { filler: If t1 t2 z.filler, context: c }
 
 left :: TermZipper -> Maybe TermZipper
-left (Tuple t1 (Root)) = Nothing
-left (Tuple t1 (Lambda_1 s c)) = Nothing
-left (Tuple t1 (App_1 c t2)) = Nothing
-left (Tuple t1 (App_2 t2 c)) = Just (Tuple t1 (App_1 c t2))
-left (Tuple t1 (If_1 c t2 t3)) = Nothing
-left (Tuple t2 (If_2 t1 c t3)) = Just (Tuple t1 (If_1 c t2 t3))
-left (Tuple t3 (If_3 t1 t2 c)) = Just (Tuple t2 (If_2 t1 c t2))
+left z = case z.context of
+  Root -> Nothing
+  Lambda_1 s c -> Nothing
+  App_1 c t2 -> Nothing
+  App_2 t1 c -> Just { filler: t1, context: App_1 c z.filler }
+  If_1 c t2 t3 -> Nothing
+  If_2 t1 c t3 -> Just { filler: t1, context: If_1 c z.filler t3 }
+  If_3 t1 t2 c -> Just { filler: t2, context: If_2 t1 c z.filler }
 
 right :: TermZipper -> Maybe TermZipper
-right (Tuple t1 (Root)) = Nothing
-right (Tuple t1 (Lambda_1 s c)) = Nothing
-right (Tuple t1 (App_1 c t2)) = Just (Tuple t2 (App_2 t1 c))
-right (Tuple t1 (App_2 t2 c)) = Nothing
-right (Tuple t1 (If_1 c t2 t3)) = Just (Tuple t2 (If_2 t1 c t3))
-right (Tuple t2 (If_2 t1 c t3)) = Just (Tuple t3 (If_3 t1 t2 c))
-right (Tuple t3 (If_3 t1 t2 c)) = Nothing
+right z = case z.context of
+  Root -> Nothing
+  Lambda_1 s c -> Nothing
+  App_1 c t2 -> Just { filler: t2, context: App_2 z.filler c }
+  App_2 t2 c -> Nothing
+  If_1 c t2 t3 -> Just { filler: t2, context: If_2 z.filler c t3 }
+  If_2 t1 c t3 -> Just { filler: t3, context: If_3 t1 z.filler c }
+  If_3 t1 t2 c -> Nothing

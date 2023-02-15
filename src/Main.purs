@@ -17,6 +17,8 @@ import Zipper
   , fromZipper
   , getHole
   , getContext
+  , viewZipper
+  , renderZipper
   )
 import Halogen as H
 import Halogen.Aff as HA
@@ -30,7 +32,7 @@ main = HA.runHalogenAff do
   body <- HA.awaitBody
   runUI component unit body
 
-data Message = Down | Up | Left | Right
+data Message = Down | Up | Left | Right | Modify Term
 
 type State = TermZipper
 
@@ -43,17 +45,10 @@ component = H.mkComponent
 
 initialState :: forall input. input -> State
 initialState _ =
-  Var "x"
-    |> toZipper
-    |> try down
-    |> try down
-    |> try right
-    |> try right
-    |> try down
-    |> try down
-    |> setHole (Var "*")
-    |> fromZipper
-    |> toZipper
+  { filler: Lambda "s" (Var "x")
+  --, context: If_3 (Var "bool_6") (Var "then_6") Root
+  , context: Root
+  }
 
 try :: forall a. (a -> Maybe a) -> a -> a
 try f val = case f val of
@@ -70,6 +65,10 @@ handleAction = case _ of
     H.modify_ \state -> (state |> try left)
   Right ->
     H.modify_ \state -> (state |> try right)
+  Modify t -> H.modify_ \state ->
+    ( state
+        |> setHole t
+    )
 
 render :: forall m. State -> H.ComponentHTML Message () m
 render state = HH.div [ css "p-4" ] [ controls, content ]
@@ -82,19 +81,15 @@ render state = HH.div [ css "p-4" ] [ controls, content ]
     , HH.button [ buttonStyle, HE.onClick \_ -> Right ] [ HH.text "Right" ]
     ]
   content = HH.div []
-    [ HH.div [ css "" ]
-        [ HH.span_ [ HH.text "State: " ]
-        --, state
-        --    |> fromZipper
-        --    |> show
-        --    |> HH.text
+    [ HH.div []
+        [ HH.div []
+            [ state
+                |> renderZipper
+            ]
+        , HH.div []
+            [ state
+                |> viewZipper
+                |> HH.text
+            ]
         ]
-    --, HH.div [ css "" ]
-    --    [ HH.span_ [ HH.text "Hole: " ]
-    --    , state
-    --        |> getHole
-    --        |> show
-    --        |> HH.text
-    --    ]
-    --, HH.div [ css "" ] [ HH.span_ [ HH.text "Context: " ], state |> getContext |> viewContext ]
     ]
