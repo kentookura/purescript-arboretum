@@ -1,182 +1,175 @@
-module Main
-  ( main
-  ) where
+module Main where
 
 import Prelude
-import Katex (toggleDisplay, defaultOptions, viewKatex, KatexOptions, asDisplay)
-import Data.Maybe
-import Deku.Attribute ((!:=), cb)
-import Deku.Attributes (klass_)
-import Deku.Core (dyn, Nut, Domable, DOMInterpret(..))
-import Deku.Control (text, text_, (<$~>), (<#~>))
+
+import Components.App (app)
+import Control.Alt ((<|>))
+import DarkModePreference (OnDark(..), OnLight(..), darkModeListener, prefersDarkMode)
+import Data.Compactable (compact)
+import Data.Foldable (traverse_)
+import Data.Generic.Rep (class Generic)
+import Data.Map as Map
+import Data.Maybe (Maybe(..), maybe)
+import Data.Show.Generic (genericShow)
+import Data.Tuple (Tuple(..), curry, fst, snd, uncurry)
+import Deku.Core (envy)
 import Deku.Do as Deku
-import Deku.Listeners (slider_, click_, click)
-import Deku.DOM as D
-import Deku.Hooks (useDyn_, useState)
 import Deku.Toplevel (runInBody)
-import FRP.Event (Event)
-import FRP.Event.Class ((<|*>))
-import Data.Tuple (Tuple(..))
-import Data.Tuple.Nested ((/\))
 import Effect (Effect)
-import Web.DOM (Element)
-import QualifiedDo.Alt as Alt
 import Effect.Class.Console (logShow)
+import Effect.Ref as Ref
+import FRP.Dedup (dedup)
+import FRP.Event (create, fold, mailboxed, memoize, subscribe)
+import FRP.Lag (lag)
+import Router.ADT (Route(..))
+import Router.Page (routeToPage)
+import Router.Route (route)
+import Routing.Duplex (parse)
+import Routing.PushState (makeInterface, matchesWith)
+import Web.DOM.Element (getBoundingClientRect)
+import Web.Event.Event (EventType(..))
+import Web.Event.EventTarget (addEventListener, eventListener, removeEventListener)
+import Web.HTML (window)
+import Web.HTML.Window (toEventTarget)
 
-instance showOperator :: Show Operator where
-  show Sum = "\\sum"
-  show Product = "\\prod"
-  show Tensor = "\\bigotimes"
-  show Integral = "\\int"
-  show DirectSum = "\\bigoplus"
+pixelBufferForScroll = 100.0 :: Number
+data ScrolledSection
+  = ScrolledCandidate Int
+  | ScrolledDefinite Int
+  | NotScrolled
 
-data Limits
-  = UpperLimit String
-  | LowerLimit String
-  | Open String
-  | Boundary String
-  | Interval String String
+data ScrollCheckDirection = ScrollCheckStart | ScrollCheckDown | ScrollCheckUp
 
-instance showLimits :: Show Limits where
-  show (UpperLimit s) = "^{" <> s <> "}"
-  show (LowerLimit s) = "_{" <> s <> "}"
-  show (Open s) = s
-  show (Boundary s) = "_{\\partial " <> s <> "}"
-  show (Interval a b) = "[" <> a <> ", " <> b <> "]"
+derive instance Generic ScrolledSection _
+instance Show ScrolledSection where
+  show = genericShow
 
-data Operator
-  = Sum
-  | Product
-  | Tensor
-  | Integral
-  | DirectSum
+getScrolledSection :: Int -> (Int -> Effect ScrolledSection) -> Effect Int
+getScrolledSection startingAt f = go ScrollCheckStart startingAt startingAt
+  where
+  go checkDir n head = do
+    scrolledSection <- f head
+    case scrolledSection of
+      ScrolledDefinite i -> pure i
+      ScrolledCandidate i -> case checkDir of
+        ScrollCheckDown -> pure i
+        _ -> go ScrollCheckUp i (i + 1)
+      NotScrolled ->
+        if n == 0 then pure 0
+        else case checkDir of
+          ScrollCheckUp -> pure n
+          _ -> go ScrollCheckDown n (head - 1)
 
-data Expr
-  = Var String
-  | Num Int
-  | Plus Expr Expr
-  | Minus Expr Expr
-  | Times Expr Expr
-  | By Expr Expr
-  | Equals Expr Expr
-
-instance showExpr :: Show Expr where
-  show (Var s) = " " <> s
-  show (Num i) = show i
-  show (Plus e1 e2) = show e1 <> "+" <> show e2
-  show (Minus e1 e2) = show e1 <> "-" <> show e2
-  show (Times e1 e2) = show e1 <> "\\cdot" <> show e2
-  show (By e1 e2) = show e1 <> "/" <> show e2
-  show (Equals e1 e2) = show e1 <> "=" <> show e2
-
-type Expression
-  = { operator :: Operator, limits :: Limits, expr :: Expr }
-
-testExpression =
-  { operator: Integral
-  , limits: Boundary "\\Omega"
-  , expr: Var "\\nabla f(\\xi) d \\xi"
-  }
-
-constructKatex :: Expression -> String
-constructKatex expr = show expr.operator <> show expr.limits <> show expr.expr
-
-contextKatex:: OperatorContext -> String
-contextKatex ctx = case ctx of
-  Top -> ""
-  SelectOperator op _ -> "\\htmlStyle{color:grey;}{ " <> show op <> "}"
-  ConstructUpperLimit op s -> show op <> "_{" <> s <> "}^\\box"
-  ConstructLowerLimit op s -> show op <> "_{\\box}^{" <> s <> "}"
-
-data OperatorContext
-  = Top
-  | SelectOperator Operator String
-  | ConstructUpperLimit Operator String
-  | ConstructLowerLimit Operator String
-
-instance showOperatorContext :: Show OperatorContext where
-  show Top = ""
-  show (SelectOperator op s) = s
-  show (ConstructUpperLimit op s) = show op <> "_{" <> s <> "}^\\box"
-  show (ConstructLowerLimit op s) = show op <> "_{\\box}^{" <> s <> "}"
-type ExpressionZipper
-  = { filler :: Expression, context :: OperatorContext }
-
-toZipper :: Expression -> ExpressionZipper
-toZipper e = { filler: e, context: Top }
-
-testZipper :: ExpressionZipper
-testZipper = toZipper testExpression
-
---testZipper2 = toZipper (Op Integral (Raw "0") (Raw "t"))
---fromZipper :: OperatorZipper -> Markup
---fromZipper z = case z.context of
---  Top -> z.filler
---  Op_1 op m1 m2 -> Op op m1 m2
---  Op_2 op c m -> fromZipper { filler: Op z.filler m, context: c}
---  Op_3 op m c -> fromZipper { filler: Op m z.filler, context: c}
---type StringContext = {head:: String, }
---down :: OperatorZipper -> Maybe MarkupZipper
---down z = case z.context of
---  Top -> Nothing
---  Op_1 op m1 m2 -> Nothing
---  Op_2 op c m -> Just { filler: op, context: c }
---  Op_3 op m c -> Just { filler: op, context: c }
---data Markup = Op Operator Markup Markup | Raw String
 main :: Effect Unit
-main =
+main = do
+  clickedSection <- Ref.new Nothing
+  currentRouteMailbox <- create
+  previousRouteMailbox <- create
+  currentRoute <- create
+  headerElement <- create
+  rightSideNav <- create
+  rightSideNavSelectE <- create
+  darkModePreferenceE <- create
+  psi <- makeInterface
+  initialListener <- eventListener (\_ -> pure unit)
+  scrollListenerRef <- Ref.new initialListener
+  let scrollType = EventType "scroll"
+  let
+    removeScroll oldListener = toEventTarget <$> window >>= removeEventListener
+      scrollType
+      oldListener
+      true
+  let
+    setScroll newListener = toEventTarget <$> window >>= addEventListener
+      scrollType
+      newListener
+      true
+  setScroll initialListener
+  let
+    changeListener newListener = do
+      oldListener <- Ref.read scrollListenerRef
+      removeScroll oldListener
+      setScroll newListener
+      Ref.write newListener scrollListenerRef
+
+  let
+    makeMap inMap = case _ of
+      Nothing -> Map.empty
+      Just (Tuple key val) -> Map.insert key val inMap
+  void $ subscribe
+    ( { header: _, mapOfElts: _ }
+        <$> headerElement.event
+        <*> fold makeMap
+          Map.empty
+          rightSideNav.event
+    )
+    \{ header, mapOfElts } -> do
+      currentSectionRef <- Ref.new 0
+      newListener <- eventListener \_ -> do
+        let
+          toVerify ce =
+            Map.lookup ce mapOfElts # maybe (pure NotScrolled) \myElt -> do
+              boundingRectHeader <- getBoundingClientRect header
+              boundingRectElt <- getBoundingClientRect myElt
+              let
+                minAy = boundingRectHeader.top
+                maxAy = boundingRectHeader.bottom
+                minBy = boundingRectElt.top - pixelBufferForScroll
+                maxBy = boundingRectElt.bottom - pixelBufferForScroll
+                aAboveB = minAy > maxBy
+                aBelowB = maxAy < minBy
+
+                intersects = not (aAboveB || aBelowB)
+              pure case intersects of
+                true -> ScrolledDefinite ce
+                false ->
+                  if maxBy < minAy then ScrolledCandidate ce else NotScrolled
+        wasHere <- Ref.read currentSectionRef
+        goHere <- Ref.read clickedSection >>= case _ of
+          Just goHere -> do
+            Ref.write Nothing clickedSection
+            pure goHere
+          Nothing -> getScrolledSection wasHere toVerify
+        Ref.write goHere currentSectionRef
+        logShow { goHere }
+        rightSideNavSelectE.push goHere
+      changeListener newListener
   runInBody
     ( Deku.do
-        setContent /\ content <- useState testZipper
-        setConfig /\ config <- useState defaultOptions
-        --let edits = do
-          --editAction <- value e
-          --setContent (update editAction)
-        D.div_
-          --[ (pure content) <#~> editor
-          [ D.div_ [text (content <#> _.filler >>> show)]
-          , D.div_ [text (content <#> _.context >>> show)]
-          --, config <#> \c -> 
-          , D.button
-              Alt.do  
-                click $ config <#> toggleDisplay >>> setConfig
-                klass_ "cursor-pointer"
-              [text_ "Toggle Display" ]
-          , D.ul_
-              $ map
-                  ( \op ->
-                      D.li
-                        ( Alt.do
-                            D.Self
-                              !:= \(e :: Element) -> do
-                                  viewKatex (show op) e (defaultOptions # asDisplay)
-                            --D.OnClick !:= cb \e -> 
-                        --click_ (setOperator op)
-                        )
-                        []
-                  )
-                  [ Sum
-                  , Integral
-                  , Tensor
-                  , DirectSum
-                  , Product
-                  ]
-          , (D.input (slider_ logShow) [])
-          , D.input Alt.do
-              D.Value !:= "f"
-            []
-          ]
+        rightSideLagged <- envy <<< memoize
+          (lag (dedup rightSideNavSelectE.event))
+        pageWas <- envy <<< mailboxed
+          ({ address: _, payload: unit } <$> previousRouteMailbox.event)
+        pageIs <- envy <<< mailboxed
+          ({ address: _, payload: unit } <$> currentRouteMailbox.event)
+        rightSideNavSelect <- envy <<< mailboxed
+          ({ address: _, payload: unit } <$> (snd <$> rightSideLagged))
+        rightSideNavDeselect <- envy <<< mailboxed
+          ({ address: _, payload: unit } <$> compact (fst <$> rightSideLagged))
+        app
+          { pageIs
+          , pageWas
+          , rightSideNavSelect
+          , rightSideNavDeselect
+          , pushState: psi.pushState
+          , curPage: routeToPage <$> currentRoute.event
+          , showBanner: dedup (eq GettingStarted <$> currentRoute.event)
+          , setHeaderElement: headerElement.push
+          , setRightSideNav: Just >>> rightSideNav.push
+          , clickedSection
+          , darkModePreference: darkModePreferenceE.event
+          }
     )
-
-viewContext :: OperatorContext -> KatexOptions -> Nut
-viewContext context settings = D.div_ 
-  [ render (contextKatex context) settings 
-  ]
-
-render :: String -> KatexOptions -> Nut
-render s o =
-  D.span Alt.do
-    D.Self
-      !:= \(e :: Element) -> do
-          viewKatex s e o
-  []
+  dedupRoute <- create
+  void $ subscribe (dedup dedupRoute.event) $ uncurry \old new -> do
+    rightSideNav.push Nothing
+    traverse_ previousRouteMailbox.push old
+    currentRouteMailbox.push new
+    currentRoute.push new
+  void $ matchesWith (map (\e -> e <|> pure FourOhFour) (parse route))
+    (curry dedupRoute.push)
+    psi
+  prefersDarkMode >>= darkModePreferenceE.push
+  void $ darkModeListener
+    (OnDark (darkModePreferenceE.push true))
+    (OnLight (darkModePreferenceE.push false))

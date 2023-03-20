@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Aldine 721';
+    src: url('./Aldine721BT-Roman.woff2') format('woff2'),
+        url('./Aldine721BT-Roman.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

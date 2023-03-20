@@ -1,8 +1,7 @@
 module Katex
   ( viewKatex
-  , KatexOptions
+  , KatexSettings
   , defaultOptions
-  , asDisplay
   , toggleDisplay
   , Macros
   ) where
@@ -15,7 +14,7 @@ import Data.Nullable (Nullable, toMaybe)
 import Type.Data.Boolean (not)
 import Web.DOM (Element)
 
-type KatexOptions =
+type KatexSettings =
   { displayMode :: Boolean
   , output :: String
   , leqno :: Boolean
@@ -30,7 +29,7 @@ type KatexOptions =
   , trust :: Boolean
   }
 
-defaultOptions :: KatexOptions
+defaultOptions :: KatexSettings
 defaultOptions = 
   { displayMode : false
   , output : "htmlAndMathMl"
@@ -46,13 +45,11 @@ defaultOptions =
   , trust : false
   }
 
-asDisplay :: KatexOptions -> KatexOptions
-asDisplay ops = ( ops { displayMode = true})
 
-toggleDisplay :: KatexOptions -> KatexOptions
+toggleDisplay :: KatexSettings -> KatexSettings
 toggleDisplay ops = case ops.displayMode of
   true ->( ops { displayMode = false})
   false -> ( ops { displayMode = true})
 data Macros = Object
 
-foreign import viewKatex :: String -> Element -> KatexOptions -> Effect Unit
+foreign import viewKatex :: String -> Element -> KatexSettings -> Effect Unit
