@@ -10,10 +10,10 @@ export const _renderToStringNullable = function(str) {
     }
   }
 
-export const render = function(string) {
+export const viewKatex = function(string) {
     return function(element) {
         return function(config) {
-            console.log("hello")
+          console.log(config)
             return () => katex.render(string, element, config)
         }
     }
