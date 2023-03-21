@@ -1,4 +1,8 @@
+purescript-deku
 node_modules
-output
-.spago
 .psci_modules
+.psci-ide-port
+dist
+output
+output-es
+
