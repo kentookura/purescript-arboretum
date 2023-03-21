@@ -7,9 +7,8 @@ import 'prismjs/components/prism-markup'
 import 'prismjs/plugins/autoloader/prism-autoloader'
 
 export const highlightAll = () => {
-  console.log("highlighting")
-  Prism.highlightAll()
-}
+  Prism.highlightAll();
+};
 export const highlightAllAsync = () => Prism.highlightAll(true)
 export const addExpandButton = () => {
   const collection = document.querySelectorAll('code.language-purescript')

@@ -15,7 +15,7 @@ import Deku.DOM as D
 import FRP.Event (Event)
 import Navigation (PushState)
 import Pages.Docs (docs)
-import Router.ADT (Route)
+import Router.Route (Route)
 
 pageLi
   :: forall lock payload

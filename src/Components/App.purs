@@ -32,7 +32,7 @@ import Effect.Ref as Ref
 import FRP.Event (Event)
 import Navigation (PushState)
 import Prism (forceHighlightAff)
-import Router.ADT (Route(..))
+import Router.Route (Route(..))
 import Router.Chapter (routeToChapter)
 import Router.RouteOrder (routeToNextRoute, routeToPrevRoute)
 import Web.DOM as DOM
@@ -124,20 +124,19 @@ app
                             [ D.Class !:= "mb-9 space-y-1"
                             ]
                         )
-                        ( []
-                          --  ( if cp.route == FourOhFour then []
-                          --  else
-                          --    []
-                          --) <>
-                          --  [ D.h1
-                          --      ( oneOf
-                          --          [ D.Id !:= "getting-started"
-                          --          , D.Class !:=
-                          --              "font-display text-3xl tracking-tight text-slate-900 dark:text-white"
-                          --          ]
-                          --      )
-                          --      [ text_ cp.title ]
-                          --  ]
+                        ( ( if cp.route == FourOhFour then []
+                            else
+                              []
+                          ) <>
+                            [ D.h1
+                                ( oneOf
+                                    [ D.Id !:= "getting-started"
+                                    , D.Class !:=
+                                        "font-display text-3xl tracking-tight text-slate-900 dark:text-white"
+                                    ]
+                                )
+                                [ text_ cp.title ]
+                            ]
                         )
                     , D.div
                         ( oneOf

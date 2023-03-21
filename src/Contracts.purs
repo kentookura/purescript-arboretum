@@ -7,7 +7,7 @@ import Data.Newtype (class Newtype)
 import Data.String (Pattern(..), split, toLower)
 import Deku.Core (Domable)
 import Record (union)
-import Router.ADT (Route, routeToTitle)
+import Router.Route (Route, routeToTitle)
 
 newtype Env = Env
   { routeLink :: forall lock payload. Route -> Domable lock payload

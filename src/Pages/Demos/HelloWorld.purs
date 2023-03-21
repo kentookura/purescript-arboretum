@@ -6,7 +6,7 @@ import Contracts (Page, page)
 import Deku.Attribute ((!:=))
 import Deku.Control (text_)
 import Deku.DOM as D
-import Router.ADT (Route(..))
+import Router.Route (Route(..))
 
 helloWorld :: forall lock payload. Page lock payload
 helloWorld = page

@@ -13,7 +13,7 @@ import Deku.Listeners (click_)
 import Effect (Effect)
 import FRP.Event (Event)
 import Navigation (PushState)
-import Router.ADT (Route(..))
+import Router.Route (Route(..))
 import Router.Chapter (routeToChapter)
 import Router.Page (routeToPage)
 import Web.Event.Event (preventDefault)
@@ -45,7 +45,7 @@ link'' eff pushState route attributes children = D.a
   Chapter chapter = routeToChapter route
   Page page = routeToPage route
   url =
-    if page.route == GettingStarted then "/"
+    if page.route == Demo then "/"
     else chapter.path <> page.path
 
 link'

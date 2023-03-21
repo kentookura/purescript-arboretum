@@ -21,7 +21,7 @@ import Effect.Ref as Ref
 import FRP.Dedup (dedup)
 import FRP.Event (create, fold, mailboxed, memoize, subscribe)
 import FRP.Lag (lag)
-import Router.ADT (Route(..))
+import Router.Route (Route(..))
 import Router.Page (routeToPage)
 import Router.Route (route)
 import Routing.Duplex (parse)
@@ -153,7 +153,7 @@ main = do
           , rightSideNavDeselect
           , pushState: psi.pushState
           , curPage: routeToPage <$> currentRoute.event
-          , showBanner: dedup (eq GettingStarted <$> currentRoute.event)
+          , showBanner: dedup (eq Home <$> currentRoute.event)
           , setHeaderElement: headerElement.push
           , setRightSideNav: Just >>> rightSideNav.push
           , clickedSection

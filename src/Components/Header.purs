@@ -22,7 +22,7 @@ import FRP.Dedup (dedup)
 import FRP.Event (Event)
 import Modal (modalClick)
 import Navigation (PushState)
-import Router.ADT (Route(..))
+import Router.Route (Route(..))
 import Web.DOM as DOM
 
 classBrightnessModeSelected :: String
@@ -111,7 +111,7 @@ header
               { darkBoolean, navModalOpen, pageIs, pageWas, pushState }
           ]
       , D.div (D.Class !:= "relative flex flex-grow basis-0 items-center")
-          [ link' pushState GettingStarted empty
+          [ link' pushState Home empty
               [ D.img
                   ( oneOf
                       [ darkBoolean <#> \dk -> D.Src :=

@@ -10,6 +10,7 @@ export const _renderToStringNullable = function(str) {
     }
   }
 
+
 export const viewKatex = function(string) {
     return function(element) {
         return function(config) {

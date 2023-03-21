@@ -77,13 +77,13 @@ banner { showBanner } = D.div
                           "inline bg-gradient-to-r from-indigo-200 via-sky-400 to-indigo-200 bg-clip-text font-display text-5xl tracking-tight text-transparent"
                       )
                       [ text_ "Structure Editing for Mathematical Markup" ]
-                  , D.p
-                      ( D.Class !:=
-                          "mt-3 text-2xl tracking-tight text-slate-400"
-                      )
-                      [ text_
-                          "A PureScript UI framework for building reactive games and web apps."
-                      ]
+                  --, D.p
+                  --    ( D.Class !:=
+                  --        "mt-3 text-2xl tracking-tight text-slate-400"
+                  --    )
+                  --    [ text_
+                  --        "A PureScript UI framework for building reactive games and web apps."
+                  --    ]
                   ]
               ]
           ]

@@ -17,7 +17,7 @@ import Deku.DOM as D
 import FRP.Event (Event)
 import Navigation (PushState)
 import Pages.Docs (docs)
-import Router.ADT (Route(..))
+import Router.Route (Route(..))
 
 pageLi
   :: forall lock payload
@@ -120,7 +120,7 @@ leftMatterMobile
                       )
                       [ D.path (D.D !:= "M5 5l14 14M19 5l-14 14") [] ]
                   ]
-              , link' pushState GettingStarted empty
+              , link' pushState Demo empty
                   [ D.img
                       ( oneOf
                           [ darkBoolean <#> \dk -> D.Src :=

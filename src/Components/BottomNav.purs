@@ -11,7 +11,7 @@ import Deku.Control (text_)
 import Deku.Core (Domable)
 import Deku.DOM as D
 import Navigation (PushState)
-import Router.ADT (Route)
+import Router.Route (Route)
 import Router.Page (routeToPage)
 
 bottomNav

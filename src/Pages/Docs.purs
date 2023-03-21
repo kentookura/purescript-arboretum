@@ -1,4 +1,7 @@
 module Pages.Docs
+  ( Doc(..)
+  , docs
+  )
   where
 
 import Prelude
@@ -9,10 +12,11 @@ import Data.Maybe (Maybe(..))
 --import Pages.CoreConcepts (coreConcepts)
 --import Pages.FRP (frp)
 import Pages.Introduction (introduction)
+import Pages.Cryptography (cryptography)
 
 
 docs :: forall lock payload. Docs lock payload
-docs = Docs [ introduction ]
+docs = Docs [ introduction, cryptography ]
 
 data
     Doc
