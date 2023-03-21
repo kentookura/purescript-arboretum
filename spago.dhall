@@ -9,7 +9,6 @@
   , "deku"
   , "effect"
   , "foldable-traversable"
-  , "halogen"
   , "lists"
   , "maybe"
   , "nullable"
