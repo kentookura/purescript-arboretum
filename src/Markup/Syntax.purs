@@ -7,11 +7,12 @@ module Markup.Syntax
   , CodeBlockType(..)
   , class Pretty
   , pretty
+  , syntaxExample
   ) where
 
 import Prelude
 import Data.Array (fromFoldable)
-import Data.List (List(..), length)
+import Data.List (List(..), (:), length, concat)
 import Data.Maybe (Maybe(..))
 import Data.Foldable (foldl)
 import Data.String (joinWith)
@@ -55,6 +56,9 @@ derive instance eqCodeBlockType :: Eq CodeBlockType
 derive instance eqListType :: Eq ListType
 derive instance eqLinkTarget :: Eq LinkTarget
 derive instance eqMarkup :: Eq Markup
+
+instance semigroupMarkup :: Semigroup Markup where
+  append (Markup bs) (Markup ds) = Markup (concat (bs:ds:Nil))
 
 instance showMarkup :: Show Markup where
   show (Markup bs) = "(Markup " <> show bs <> ")"
@@ -129,3 +133,7 @@ instance showInline :: Show Inline where
 instance showLinkTarget :: Show LinkTarget where
   show (InlineLink uri) = "(InlineLink " <> show uri <> ")"
   show (ReferenceLink tgt) = "(ReferenceLink " <> show tgt <> ")"
+
+
+syntaxExample :: Markup
+syntaxExample = Markup (Header 1 (Str "Parse" : Space : Str "this" : Space : Str "Header!" : Nil):Nil)
