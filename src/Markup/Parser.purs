@@ -2,10 +2,10 @@ module Markup.Parser
   ( Container(..)
   , P
   , inlines
-  , parseMarkup
   , parseBlocks
   , someOf
   , toString
+  , parseMarkup
   )
   where
 
@@ -59,19 +59,18 @@ data Container
   | CLinkReference Block 
 
 
-parseInlines :: L.List String -> Either String (L.List Inline)
-parseInlines s = 
-  map consolidate
-    $ lmap parseErrorMessage
-    $ runParser (S.joinWith "\n" $ A.fromFoldable s) inlines
+parseMarkup :: String -> Either String Markup
+parseMarkup mkup = map Markup blocks
+  where 
+    blocks = parseBlocks containers
+    containers = parseContainers mempty lines
+    lines = 
+      L.fromFoldable 
+      $ S.split (S.Pattern "\n") 
+      $ R.replace slashR "" 
+      $ tabsToSpaces mkup
+    slashR = unsafeRegex "\\r" RF.global
 
-consolidate :: L.List Inline -> L.List Inline
-consolidate =
-  case _ of
-    L.Nil -> L.Nil
-    (Str s1) : (Str s2 : is) ->
-      consolidate $ L.Cons (Str (s1 <> s2)) is
-    i : is -> L.Cons i $ consolidate is 
 
 inlines :: P (List Inline)
 inlines = L.many inline2 <* eof
@@ -87,7 +86,7 @@ inlines = L.many inline2 <* eof
         <|> code
 --        <|> autolink
 --        <|> entity
---
+
   inline1 :: P Inline
   inline1 = 
     try inline0
@@ -160,7 +159,6 @@ inlines = L.many inline2 <* eof
 
   other :: P Inline
   other = do
-    --c <- (CP.singleton <<< codePointFromChar) <$> (anyChar :: ?T)
     c <- singleton <$> anyChar 
     if c == "\\"
       then
@@ -169,6 +167,62 @@ inlines = L.many inline2 <* eof
           <|> pure (Str "\\")
       else pure (Str c)
 
+parseBlocks :: List Container -> Either String (List Block)
+parseBlocks =
+  case _ of
+    Nil -> pure Nil
+    CText s : CSetextHeader n : cs -> do
+      hd <- parseInlines $ L.singleton s
+      tl <- parseBlocks cs
+      pure $ (Header n hd) : tl
+
+    CText s : cs -> do
+      let 
+        sp = L.span isTextContainer cs
+      is <- parseInlines $ s : (map getCText sp.init)
+      tl <- parseBlocks sp.rest
+      pure $ (Paragraph is) : tl
+ 
+    CRule : cs ->
+      map (Rule : _) $ parseBlocks cs
+ 
+    (CATXHeader n s) : cs → do
+      hd ← parseInlines $ L.singleton s
+      tl ← parseBlocks cs
+      pure $ (Header n hd) : tl
+    (CBlockquote cs) : cs1 → do
+      hd ← parseBlocks cs
+      tl ← parseBlocks cs1
+      pure $ (Blockquote hd) : tl
+    (CListItem lt cs) : cs1 → do
+      let
+        sp = L.span (isListItem lt) cs1
+      bs ← parseBlocks cs
+      bss ← traverse (parseBlocks <<< getCListItem) sp.init
+      tl ← parseBlocks sp.rest
+      pure $ (Lst lt (bs : bss)) : tl
+    (CCodeBlockIndented ss) : cs →
+      map ((CodeBlock Indented ss) : _) $ parseBlocks cs
+    (CCodeBlockFenced eval info ss) : cs →
+      map ((CodeBlock (Fenced eval info) ss) : _) $ parseBlocks cs
+    (CLinkReference b) : cs →
+      map (b : _) $ parseBlocks cs
+    L.Cons _ cs →
+      parseBlocks cs
+
+parseInlines :: L.List String -> Either String (L.List Inline)
+parseInlines s = 
+  map consolidate
+    $ lmap parseErrorMessage
+    $ runParser (S.joinWith "\n" $ A.fromFoldable s) inlines
+
+consolidate :: L.List Inline -> L.List Inline
+consolidate =
+  case _ of
+    L.Nil -> L.Nil
+    (Str s1) : (Str s2 : is) ->
+      consolidate $ L.Cons (Str (s1 <> s2)) is
+    i : is -> L.Cons i $ consolidate is 
 
 someOf
   :: (Char -> Boolean)
@@ -181,19 +235,10 @@ someOf =
 toString :: List Char -> String
 toString = (fromCharArray <<< toUnfoldable)
 
-parseMarkup :: String -> Either String Markup
-parseMarkup s = map Markup bs
-  where 
-    bs = parseBlocks ctrs
-    ctrs = parseContainers mempty lines
-    lines = L.fromFoldable $ S.split (S.Pattern "\n") $ R.replace slashR "" $ tabsToSpaces s
-    slashR = unsafeRegex "\\r" RF.global
-
 parseContainers
-  ∷ ∀ a
-  . L.List Container 
-  → L.List String
-  → L.List Container
+  :: L.List Container 
+  -> L.List String
+  -> L.List Container
 parseContainers acc L.Nil = L.reverse acc
 parseContainers acc (L.Cons s ss)
   | allChars isSpace s =
@@ -249,6 +294,7 @@ isATXHeader s =
     rest = S.drop level s
   in
     level >= 1 && level <= 6 && S.take 1 rest == " "
+
 
 removeNonIndentingSpaces :: String -> String
 removeNonIndentingSpaces s
@@ -449,48 +495,6 @@ isLinkReference s = S.take 1 s == "[" && M.isJust (Ref.parseLinkReference s)
 min :: forall a. (Ord a) => a -> a -> a
 min n m = if n < m then n else m
 
-parseBlocks :: List Container -> Either String (List Block)
-parseBlocks =
-  case _ of
-    Nil -> pure Nil
-    CText s : CSetextHeader n : cs -> do
-      hd <- parseInlines $ L.singleton s
-      tl <- parseBlocks cs
-      pure $ (Header n hd) : tl
-
-    CText s : cs -> do
-      let 
-        sp = L.span isTextContainer cs
-      is <- parseInlines $ s : (map getCText sp.init)
-      tl <- parseBlocks sp.rest
-      pure $ (Paragraph is) : tl
- 
-    CRule : cs ->
-      map (Rule : _) $ parseBlocks cs
- 
-    (CATXHeader n s) : cs → do
-      hd ← parseInlines $ L.singleton s
-      tl ← parseBlocks cs
-      pure $ (Header n hd) : tl
-    (CBlockquote cs) : cs1 → do
-      hd ← parseBlocks cs
-      tl ← parseBlocks cs1
-      pure $ (Blockquote hd) : tl
-    (CListItem lt cs) : cs1 → do
-      let
-        sp = L.span (isListItem lt) cs1
-      bs ← parseBlocks cs
-      bss ← traverse (parseBlocks <<< getCListItem) sp.init
-      tl ← parseBlocks sp.rest
-      pure $ (Lst lt (bs : bss)) : tl
-    (CCodeBlockIndented ss) : cs →
-      map ((CodeBlock Indented ss) : _) $ parseBlocks cs
-    (CCodeBlockFenced eval info ss) : cs →
-      map ((CodeBlock (Fenced eval info) ss) : _) $ parseBlocks cs
-    (CLinkReference b) : cs →
-      map (b : _) $ parseBlocks cs
-    L.Cons _ cs →
-      parseBlocks cs
 
 isTextContainer :: Container -> Boolean
 isTextContainer (CText _) = true

@@ -1,4 +1,5 @@
 purescript-deku
+generated-docs
 node_modules
 .psci_modules
 .psci-ide-port
@@ -8,3 +9,6 @@ output-es
 .spago
 pnpm-lock.yaml
 result
+backend
+src/Markup/Penrose/Examples
+.vscode

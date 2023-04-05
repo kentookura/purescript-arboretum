@@ -1,100 +1,41 @@
-module Contracts where
+module Scribble.Contracts (Theorem(..), theorem) where
 
 import Prelude
 
-import Data.Array (intercalate)
-import Data.Newtype (class Newtype)
-import Data.String (Pattern(..), split, toLower)
 import Deku.Core (Domable)
-import Record (union)
-import Router.Route (Route, routeToTitle)
 
-newtype Env = Env
-  { routeLink :: forall lock payload. Route -> Domable lock payload
-  , routeLinkWithText ::
-      forall lock payload. Route -> String -> Domable lock payload
-  }
 
-newtype Docs lock paylaod = Docs (Array (Chapter lock paylaod))
+--data TheoremType 
+--  = Theorem
+--  | Lemma
+--  | Proposition
+--  | Remark
+--  | Custom String
 
-derive instance Newtype (Docs lock paylaod) _
-newtype Chapter lock payload = Chapter
-  { title :: String, path :: String, pages :: Array (Page lock payload) }
 
-derive instance Newtype (Chapter lock paylaod) _
-
-chapter
-  :: forall lock payload
-   . { title :: String
-     , pages :: Array (Page lock payload)
-     }
-  -> Chapter lock payload
-chapter i = Chapter
-  ( i `union`
-      { path: "/" <>
-          (intercalate "-" $ map toLower $ split (Pattern " ") i.title)
-      }
-  )
-
-newtype Page lock payload = Page
-  { path :: String
-  , title :: String
-  , route :: Route
-  , topmatter :: Env -> Array (Domable lock payload)
-  , sections :: Array (Section lock payload)
-  }
-
-derive instance Newtype (Page lock payload) _
-
-page
-  :: forall lock payload
-   . { route :: Route
-     , topmatter :: Env -> Array (Domable lock payload)
-     , sections :: Array (Section lock payload)
-     }
-  -> Page lock payload
-page i = Page
-  ( i `union`
-      { title
-      , path: "/" <>
-          (intercalate "-" $ map toLower $ split (Pattern " ") title)
-      }
-  )
-  where
-  title = routeToTitle i.route
-
-newtype Section lock payload = Section
+newtype Theorem lock payload = Theorem
   { title :: String
-  , id :: String
-  , topmatter :: Env -> Array (Domable lock payload)
-  , subsections :: Array (Subsection lock payload)
+  , statement :: Domable lock payload
+  , proof :: Domable lock payload
   }
 
-section
+theorem
   :: forall lock payload
    . { title :: String
-     , topmatter :: Env -> Array (Domable lock payload)
-     , subsections :: Array (Subsection lock payload)
-     }
-  -> Section lock payload
-section i = Section
-  ( i `union`
-      { id: intercalate "-" $ map toLower $ split (Pattern " ") i.title }
-  )
+     , statement :: Domable lock payload
+     , proof :: Domable lock payload
+     } -> Theorem lock payload
+theorem i = Theorem i
 
-newtype Subsection lock payload = Subsection
+newtype Tooltip lock payload = Tooltip
   { title :: String
-  , id :: String
-  , matter :: Env -> Array (Domable lock payload)
+  , matter :: Domable lock payload
   }
 
-subsection
+tooltip
   :: forall lock payload
    . { title :: String
-     , matter :: Env -> Array (Domable lock payload)
-     }
-  -> Subsection lock payload
-subsection i = Subsection
-  ( i `union`
-      { id: intercalate "-" $ map toLower $ split (Pattern " ") i.title }
-  )
+     , matter :: Domable lock payload
+     } -> Tooltip lock payload
+tooltip i = Tooltip i
+

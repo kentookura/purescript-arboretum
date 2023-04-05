@@ -1,15 +1,32 @@
-module Markup.Penrose where
+module Markup.Penrose
+  ( homotopyStyle
+  , myProgram
+  , penroseExample
+  , tabButton
+  , viewSources
+  )
+  where
 
 import Prelude
 import Web.DOM (Element)
+import Data.List (List)
 import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple(..))
+import Data.Tuple.Nested ((/\))
 import Deku.Attribute ((!:=))
+import Deku.Attributes (klass_)
 import Deku.Core (Domable, Nut)
+import Deku.Control (text_, (<#~>), blank)
+import Deku.Do as Deku
 import Deku.DOM as D
+import Deku.Hooks (useState)
+import Deku.Listeners (click_, textInput_)
 import Data.Maybe (Maybe)
 import Effect (Effect)
-import QualifiedDo.Alt as Do
-
+import Effect.Class.Console (logShow)
+import FRP.Event (Event, makeEvent)
+import QualifiedDo.Alt as Alt
+import Markup.Syntax (Markup)
 
 type Path = String
 
@@ -20,51 +37,109 @@ type Substance = String
 type Style = String
 type Domain = String
 
-
-type Program =
-  { domain :: String
-  , style :: String
-  , substance :: String
-  , variation :: String
+myProgram =
+  { domain: myDomain
+  , style: myStyle
+  , substance: mySubstance
+  , variation: myVariation
   }
-
-myProgram :: Program
-myProgram = 
-  { domain : myDomain
-  , style : myStyle
-  , substance : mySubstance
-  , variation : myVariation
-  }
-
 
 homotopyExample :: Nut
-homotopyExample = render {domain: homotopyDomain, style: homotopyStyle, substance: homotopySubstance, variation: ""}
+homotopyExample = render { domain: homotopyDomain, style: homotopyStyle, substance: homotopySubstance, variation: "" }
+
 penroseExample :: Nut
 penroseExample = render myProgram
 
 --render :: forall a. Diagram a => a -> Nut
 
-render :: Program -> Nut
+render
+  :: { domain :: String
+     , style :: String
+     , substance :: String
+     , variation :: String
+     }
+  -> Nut
 render p =
-  D.span Alt.do
-    D.Self !:= \(elt :: Element) -> do
-      diagram p elt "pathresolver" (Just "Hello World!")
+  D.span
+    Alt.do
+      D.Self !:= \(elt :: Element) -> do
+        diagram p elt "pathresolver" (Just "Hello World!")
+    []
 
-  []
+data File = Substance | Style | Domain
+
+extension :: File -> String
+extension Substance = ".sub"
+extension Style = ".sty"
+extension Domain = ".dom"
+
+tabButton :: String
+tabButton = "font-mono mb-0 flex w-full cursor-pointer items-center justify-center rounded-lg border-0 px-0 py-1 transition-all ease-in-out"
+viewSources
+  :: { domain :: String
+     , style :: String
+     , substance :: String
+     , variation :: String
+     }
+  -> Nut
+viewSources p = Deku.do
+  viewFile /\ filetype <- useState Substance
+  D.div
+    Alt.do
+      klass_ "relative right-0"
+    [ D.ul
+        Alt.do
+          klass_ "relative flex list-none flex-wrap rounded-lg p-1 mt-0"
+      $
+        map
+          ( \(Tuple ft ext) ->
+              D.li
+                Alt.do
+                  let base = "flex-auto text-center"
+                  klass_ ""
+                [ D.a
+                    Alt.do
+                      klass_ tabButton
+                      click_ $ viewFile ft
+                    [ text_ ext ]
+                ]
+          )
+          [ (Substance /\ ".sub")
+          , (Domain /\ ".dom")
+          , (Style /\ ".sty")
+          ]
+    , D.pre
+        (D.Class !:= ("prism-code"))
+        [ D.code_
+            [ filetype <#~>
+                case _ of
+                  Substance -> text_ p.substance
+                  Style -> text_ p.style
+                  Domain -> text_ p.domain
+            ]
+        ]
+    ]
 
 foreign import diagram
-  :: Program
+  :: { domain :: String
+     , style :: String
+     , substance :: String
+     , variation :: String
+     }
   -> Element
   -> Path
   -> Maybe String
   -> Effect Unit
 
-mySubstance = """
-Set A, B
+mySubstance =
+  """Set A, B, C, D
 IsSubset(A, B)
+IsSubset(B, C)
+AutoLabel All
 """
 
-homotopyStyle = """
+homotopyStyle =
+  """
 canvas {
     width = 600
     height = 400
@@ -110,25 +185,52 @@ where c := CurveFromPoints(p1, p2, p3, p4) {
 }
 """
 
-
-myStyle = """
+myStyle =
+  """
 canvas {
-    width = 400
-    height = 400
+  width = 800
+  height = 700
 }
-forall Set s {
-    s.shape = Circle {}
-    ensure lessThan(20, s.shape.r)
+
+forall Set x {
+  x.icon = Circle {
+    strokeWidth : 0
+  }
+
+  x.text = Equation {
+    string : x.label
+    fontSize : "25px"
+  }
+
+  ensure contains(x.icon, x.text)
+  encourage sameCenter(x.text, x.icon)
+  x.textLayering = x.text above x.icon
 }
-forall Set s1, s2
-where IsSubset(s1, s2) {
-    ensure contains(s2.shape, s1.shape)
-    s2.shape above s1.shape
+
+forall Set x; Set y
+where IsSubset(x, y) {
+  ensure smallerThan(x.icon, y.icon)
+  ensure disjoint(y.text, x.icon, 10)
+  ensure contains(y.icon, x.icon, 5)
+  x.icon above y.icon
 }
+
+forall Set x; Set y
+where Not(Intersecting(x, y)) {
+  ensure disjoint(x.icon, y.icon)
+}
+
+forall Set x; Set y
+where Intersecting(x, y) {
+  ensure overlapping(x.icon, y.icon)
+  ensure disjoint(y.text, x.icon)
+  ensure disjoint(x.text, y.icon)
+}
+
 """
 
-
-homotopySubstance = """
+homotopySubstance =
+  """
 Point a1, b1, d1
 Point a2, b2, d2
 
@@ -163,12 +265,16 @@ Label curve1 $\gamma_1$
 Label curve2 $\gamma_2$
 """
 
-myDomain = """
+myDomain =
+  """
 type Set
+predicate Not(Prop p1)
+predicate Intersecting( Set s1, Set s2)
 predicate IsSubset(Set, Set)
 """
 
-homotopyDomain = """
+homotopyDomain =
+  """
 type Curve
 type Point
 
@@ -176,5 +282,4 @@ constructor CurveFromPoints( Point p1, Point p2, Point p3, Point p4 ) -> Curve
 constructor Lerp( Point p1, Point p2 ) -> Point
 """
 
-myVariation = """
-"""
+myVariation = ""

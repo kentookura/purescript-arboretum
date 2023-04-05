@@ -1,10 +1,22 @@
-module Markup.Syntax where
+module Markup.Syntax
+  ( Markup(..)
+  , Inline(..)
+  , Block(..)
+  , ListType(..)
+  , LinkTarget(..)
+  , CodeBlockType(..)
+  , class Pretty
+  , pretty
+  ) where
 
 import Prelude
-import Data.List (List(..))
+import Data.Array (fromFoldable)
+import Data.List (List(..), length)
 import Data.Maybe (Maybe(..))
+import Data.Foldable (foldl)
+import Data.String (joinWith)
 
-data Inline 
+data Inline
   = Str String
   | Space
   | LineBreak
@@ -23,12 +35,12 @@ data Block
   | LinkReference String String
   | Rule
 
-data ListType 
+data ListType
   = Bullet String
   | Ordered String
 
-data CodeBlockType 
-  = Indented 
+data CodeBlockType
+  = Indented
   | Fenced Boolean String
 
 data LinkTarget
@@ -47,6 +59,46 @@ derive instance eqMarkup :: Eq Markup
 instance showMarkup :: Show Markup where
   show (Markup bs) = "(Markup " <> show bs <> ")"
 
+instance prettyMarkup :: Pretty Markup where
+  pretty (Markup m) = joinWith "\n" $ map pretty (fromFoldable m)
+
+class Pretty a where
+  pretty :: a -> String
+
+instance prettyInline :: Pretty Inline where
+  pretty = case _ of
+    Str s -> s
+    Space -> " "
+    LineBreak -> "\n\n"
+    SoftBreak -> "\n"
+    Emph is -> "emph ("
+      <>
+        ( joinWith "" $
+            map pretty (fromFoldable is)
+        )
+      <> ")"
+    Strong _ -> ""
+    Code _ _ -> ""
+    Link _ _ -> ""
+
+instance prettyBlock :: Pretty Block where
+  pretty b = go b 0
+    where
+    go :: Block -> Int -> String
+    go b i = case b of
+      Paragraph is -> """Paragraph
+      """ <> foldl append mempty (map pretty is)
+      Header lvl is ->
+        "Header (level "
+          <> show lvl
+          <> ") \""
+          <> foldl append mempty (map pretty is)
+      Blockquote bs -> "Blockquote" <> foldl append mempty (map pretty bs)
+      Lst _ _ -> "List"
+      CodeBlock cbtype _ -> "CodeBlock"
+      LinkReference s1 s2 -> "LinkReference"
+      Rule -> "Rule"
+
 instance showBlock :: Show Block where
   show (Paragraph is) = "(Paragraph " <> show is <> ")"
   show (Header n is) = "(Header " <> show n <> " " <> show is <> ")"
@@ -61,7 +113,7 @@ instance showListType :: Show ListType where
   show (Ordered s) = "(Ordered " <> show s <> ")"
 
 instance showCodeBlockType :: Show CodeBlockType where
-  show Indented  = "Indented"
+  show Indented = "Indented"
   show (Fenced evaluated info) = "(Fenced " <> show evaluated <> " " <> show info <> ")"
 
 instance showInline :: Show Inline where
@@ -73,7 +125,6 @@ instance showInline :: Show Inline where
   show (Strong is) = "(Strong " <> show is <> ")"
   show (Code e s) = "(Code " <> show e <> " " <> show s <> ")"
   show (Link is tgt) = "(Link " <> show is <> " " <> show tgt <> ")"
-
 
 instance showLinkTarget :: Show LinkTarget where
   show (InlineLink uri) = "(InlineLink " <> show uri <> ")"
