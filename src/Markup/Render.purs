@@ -1,5 +1,6 @@
 module Markup.Render
   ( renderMarkup
+  , renderMarkup_
   , renderTheorem
   )
   where
@@ -16,7 +17,7 @@ import Deku.Core (Nut, Domable)
 import Deku.Control (text_, blank)
 import Deku.DOM as D
 import Parsing (runParser)
-import Scribble.Contracts (Theorem(..), theorem)
+import Markup.Contracts (Theorem(..), theorem)
 
 
 renderInline :: Inline -> Nut
