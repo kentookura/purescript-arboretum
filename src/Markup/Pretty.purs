@@ -96,6 +96,7 @@ prettyPrintInline il =
       in
         bang <> "`" <> s <> "`"
     Link is tgt -> "[" <> prettyPrintInlines is <> "]" <> printTarget tgt
+    Math s -> "$" <> s <> "$"
     --Image is url -> "![" <> prettyPrintInlines is <> "](" <> url <> ")"
     --FormField l r e ->
     --  let

@@ -7,6 +7,16 @@
 31.03.23:
 Added a modified version of the slamdown markdown parser
 
+06.04.23:
+
+Added basic building blocks for the RTE
+The only piece of state is the parsed markup at the moment
+TODO:
+set up debug view
+finish `keyAction`
+think about the edit function & types
+
+
 ### Notes
 
 3 Types of links:

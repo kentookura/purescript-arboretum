@@ -66,41 +66,6 @@ viewZipper z = acc (z.context) (viewTerm z.filler)
     (If_2 t1 c t3) -> foldl append mempty [ "if ", viewTerm t1, " then ", acc c o, "else ", viewTerm t3 ]
     (If_3 t1 t2 c) -> foldl append mempty [ "if ", viewTerm t1, " then ", viewTerm t2, "else ", acc c o ]
 
---renderZipper :: forall w i. TermZipper -> HH.HTML w i
---renderZipper z = HH.pre [] [ acc (z.context) (viewHole z.filler) ]
---  where
---  acc :: forall w i. TermContext -> HH.HTML w i -> HH.HTML w i
---  acc i o = case i of
---    Root -> HH.span [ css "bg-slate-100" ]
---      [ HH.text "{"
---      , o
---      , HH.text "}"
---      ]
---    Lambda_1 s c -> HH.span []
---      [ HH.text $ "\\" <> s <> "."
---      , acc c o
---      --, HH.text $ "\\" <> s <> "."
---      ]
---    App_1 c t2 -> HH.span []
---      [ acc c o
---      , HH.text $ viewTerm t2
---      ]
---    App_2 t1 c -> HH.span []
---      [ HH.text $ viewTerm t1, acc c o ]
---    If_1 c t2 t3 -> HH.span []
---      [ HH.text "if "
---      , acc c o
---      , HH.text $ " then " <> viewTerm t2 <> " else " <> viewTerm t3
---      ]
---    If_2 t1 c t3 -> HH.span []
---      [ HH.text $ "if " <> viewTerm t1 <> " then "
---      , acc c o
---      , HH.text $ " else " <> viewTerm t3
---      ]
---    If_3 t1 t2 c -> HH.span []
---      [ HH.text $ "if " <> viewTerm t1 <> " then " <> viewTerm t2 <> " else "
---      , acc c o
---      ]
 
 toZipper :: Term -> TermZipper
 toZipper t = { filler: t, context: Root }

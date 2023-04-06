@@ -24,8 +24,28 @@ data Inline
   | SoftBreak
   | Emph (List Inline)
   | Strong (List Inline)
+  | Math (String)
   | Code Boolean String
   | Link (List Inline) LinkTarget
+
+
+data InlineContext 
+  = Root
+  | StringContext { before :: String, after:: String}
+  | EmphContext { before :: List InlineContext, after :: List InlineContext}
+  | StrongContext { before :: List InlineContext, after :: List InlineContext}
+  | CodeContext { before :: String, after:: String}
+  | LinkContext
+
+--fromZipper :: { filler :: Inline, context :: InlineContext} -> Inline
+--fromZipper {filler, context} = case context of
+  --Root -> filler
+  --StringContext {before, after} -> fromZipper {filler: Str (before <> after), context: context}
+  --EmphContext { before, after} -> _
+  --StrongContext { before, after} -> fromZipper { filler: Strong (before <> after), context: context}
+  --CodeContext { before, after} -> fromZipper { filler: Code true (before <> after), context: context}
+  --Link -> {filler, context}
+
 
 data Block
   = Paragraph (List Inline)
@@ -75,15 +95,12 @@ instance prettyInline :: Pretty Inline where
     Space -> " "
     LineBreak -> "\n\n"
     SoftBreak -> "\n"
-    Emph is -> "emph ("
-      <>
-        ( joinWith "" $
-            map pretty (fromFoldable is)
-        )
-      <> ")"
-    Strong _ -> ""
+    Emph is -> wrap "*" is
+    Strong is -> wrap "**" is
     Code _ _ -> ""
+    Math s -> "$" <> s <> "$"
     Link _ _ -> ""
+    where wrap s i = s <> (joinWith "" $ (map pretty (fromFoldable i))) <> s
 
 instance prettyBlock :: Pretty Block where
   pretty b = go b 0
@@ -129,6 +146,7 @@ instance showInline :: Show Inline where
   show (Strong is) = "(Strong " <> show is <> ")"
   show (Code e s) = "(Code " <> show e <> " " <> show s <> ")"
   show (Link is tgt) = "(Link " <> show is <> " " <> show tgt <> ")"
+  show (Math is) = "(Math " <> show is <> ")"
 
 instance showLinkTarget :: Show LinkTarget where
   show (InlineLink uri) = "(InlineLink " <> show uri <> ")"

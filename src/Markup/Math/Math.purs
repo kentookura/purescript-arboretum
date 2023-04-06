@@ -1,4 +1,4 @@
-module Math
+module Markup.Math
   ( Location
   , definedIn
   , differentialEqn
@@ -14,7 +14,6 @@ import Prelude
 
 import Data.Foldable (for_, oneOf, oneOfMap, traverse_)
 import Data.Int (floor)
-import Data.Search.Trie (Trie, query)
 import Data.String (Pattern(..), Replacement(..), replaceAll)
 import Data.Time.Duration (Seconds(..))
 import Data.Tuple (Tuple(..))
@@ -35,7 +34,7 @@ import FRP.Behavior.Time (seconds)
 import FRP.Event (Event, keepLatest)
 import FRP.Event.AnimationFrame (animationFrame)
 import FRP.Event.Class ((<|*>))
-import Katex (Accent(..), KatexSettings, Operator(..), defaultOptions, toggleDisplay, viewKatex)
+import Markup.Katex (Accent(..), KatexSettings, Operator(..), defaultOptions, toggleDisplay, viewKatex)
 import QualifiedDo.Alt as Alt
 import Web.DOM (Element)
 import Web.Event.Event (target)

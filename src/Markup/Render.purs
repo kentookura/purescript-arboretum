@@ -9,6 +9,7 @@ import Prelude
 import Data.Array as A
 import Data.Either (Either(..))
 import Data.List (List)
+import Data.String as S
 import Data.Foldable (foldl)
 import Markup.Syntax (Markup(..), Block(..), Inline(..), ListType(..))
 import Markup.Parser (parseMarkup)
@@ -18,6 +19,8 @@ import Deku.Control (text_, blank)
 import Deku.DOM as D
 import Parsing (runParser)
 import Markup.Contracts (Theorem(..), theorem)
+import Markup.Math (inline)
+import Markup.Katex (defaultOptions)
 
 
 renderInline :: Inline -> Nut
@@ -31,6 +34,7 @@ renderInline =
     Strong is -> D.strong_ $ A.fromFoldable (map renderInline is)
     Code bool str -> D.code_ [text_ str]
     Link is tgt -> D.a_ $ A.fromFoldable (map renderInline is)
+    Math s -> inline defaultOptions s
 
 renderBlock :: Block -> Nut
 renderBlock = 

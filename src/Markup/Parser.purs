@@ -60,15 +60,14 @@ data Container
 
 
 parseMarkup :: String -> Either String Markup
-parseMarkup mkup = map Markup blocks
+parseMarkup mkup = map Markup (parseBlocks containers)
   where 
-    blocks = parseBlocks containers
-    containers = parseContainers mempty lines
     lines = 
       L.fromFoldable 
-      $ S.split (S.Pattern "\n") 
-      $ R.replace slashR "" 
-      $ tabsToSpaces mkup
+        $ S.split (S.Pattern "\n") 
+        $ R.replace slashR "" 
+        $ tabsToSpaces mkup
+    containers = parseContainers mempty lines
     slashR = unsafeRegex "\\r" RF.global
 
 
@@ -84,6 +83,8 @@ inlines = L.many inline2 <* eof
         <|> strong p
         <|> emph p
         <|> code
+        <|> math
+
 --        <|> autolink
 --        <|> entity
 
@@ -104,7 +105,6 @@ inlines = L.many inline2 <* eof
   alphaNumStr :: P Inline
   alphaNumStr = Str <$> someOf (isAlphaNum <<< codePointFromChar)
 
-
   space :: P Inline
   space = (toSpace <<< (singleton <$> _)) <$> L.some (satisfy isWhitespace)
     where
@@ -124,6 +124,13 @@ inlines = L.many inline2 <* eof
   
   emph :: P Inline -> P Inline 
   emph p = emphasis p Emph "*" <|> emphasis p Emph "_"
+
+  math :: P Inline
+  math = do
+    _ <- string "$" 
+    contents <- (fromCharArray <<< A.fromFoldable) <$> manyTill anyChar (string "$")
+    pure <<< Math <<< trim $ contents
+    --Math <$> manyTill p (string "$")
 
   strong :: P Inline -> P Inline
   strong p = emphasis p Strong "**" <|> emphasis p Strong "__"

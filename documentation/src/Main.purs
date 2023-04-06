@@ -66,7 +66,6 @@ getScrolledSection startingAt f = go ScrollCheckStart startingAt startingAt
 main :: Effect Unit
 --main = runInBody Deku.do
 main = do
-  getMarkup
   clickedSection <- Ref.new Nothing
   currentRouteMailbox <- create
   previousRouteMailbox <- create

@@ -40,6 +40,7 @@
   , "routing"
   , "routing-duplex"
   , "strings"
+  , "stringutils"
   , "test-unit"
   , "transformers"
   , "tuples"

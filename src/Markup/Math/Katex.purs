@@ -1,4 +1,4 @@
-module Katex
+module Markup.Katex
   ( viewKatex
   , KatexSettings
   , defaultOptions
@@ -127,6 +127,7 @@ instance showExpr :: Show Expr where
   show (By e1 e2) = show e1 <> "/" <> show e2
   show (Equals e1 e2) = show e1 <> "=" <> show e2
   show (Custom op e1 e2) = show e1 <> show op <> show e2
+  
 instance showAccent :: Show Accent where
   show Prime = "'"
   show DoublePrime = "''"

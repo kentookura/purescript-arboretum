@@ -18,6 +18,7 @@ import Partial.Unsafe (unsafePartial)
 import Test.Unit (suite, test, failure)
 import Test.Unit.Main (runTest)
 import Test.Unit.Assert (assert, equal)
+import Markup.Examples (raw)
 
 import Parsing (Position(..), ParseError(..), Parser, runParser, parseErrorMessage, parseErrorPosition)
 import Parsing.String (parseErrorHuman)
@@ -83,51 +84,18 @@ main = runTest do
         ) 
       equal expected (parseMarkup "Parse this Paragraph") 
       logShow $ (pretty <$> expected)
+    test "Math" do
+      let expected = (Right 
+          (Markup 
+            (Paragraph (Math ("asdf"):Nil):Nil
+            )
+          )
+        ) 
+      equal expected (parseMarkup "$asdf$") 
+      logShow $ (pretty <$> expected)
     test "Examples" do
-      logShow $ parseMarkup """
-# Foobar
-
-Foobar is a Python library for dealing with word pluralization.
-
-## Installation
-
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
-
-```bash
-pip install foobar
-```
-
-## Usage
-
-```python
-import foobar
-
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
-```
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-
-
-      """
-
-  suite "" do
+      logShow $ parseMarkup raw
+  suite "fromRepo" do
     test "" do
       testDocument $ parseMarkup "Paragraph"
       testDocument $ parseMarkup "Paragraph with spaces"
