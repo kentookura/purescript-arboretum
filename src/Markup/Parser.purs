@@ -6,6 +6,10 @@ module Markup.Parser
   , someOf
   , toString
   , parseMarkup
+  , parseInlines
+  , parseBlocks
+  , parseContainers
+  , consolidate
   )
   where
 
@@ -39,7 +43,7 @@ import Parsing.Combinators (option, optionMaybe, many, many1, choice, try, manyT
 import Parsing.String (string, eof, char, anyChar, satisfy)
 import Parsing.String.Basic (oneOf)
 import Parsing.Token (LanguageDef, GenLanguageDef(..), letter, digit, letter)
-import Parsing (runParser, Parser, fail, parseErrorMessage)
+import Parsing (runParser, Parser, ParseError, fail, parseErrorMessage)
 
 import Markup.Parser.References as Ref
 import Markup.Parser.Utils (isWhitespace)
@@ -52,24 +56,31 @@ data Container
   | CRule
   | CATXHeader Int String
   | CSetextHeader Int
-  | CBlockquote (L.List Container)
-  | CListItem ListType (L.List Container)
-  | CCodeBlockFenced Boolean String (L.List String)
-  | CCodeBlockIndented (L.List String)
+  | CBlockquote (List Container)
+  | CListItem ListType (List Container)
+  | CCodeBlockFenced Boolean String (List String)
+  | CCodeBlockIndented (List String)
   | CLinkReference Block 
 
 
-parseMarkup :: String -> Either String Markup
+parseMarkup :: String -> Either ParseError Markup
 parseMarkup mkup = map Markup (parseBlocks containers)
   where 
     lines = 
       L.fromFoldable 
-        $ S.split (S.Pattern "\n") 
+        $ S.split (S.Pattern "\n") -- should this happen here?
         $ R.replace slashR "" 
         $ tabsToSpaces mkup
     containers = parseContainers mempty lines
     slashR = unsafeRegex "\\r" RF.global
 
+--parseInlines :: String -> Either ParseError (List Inline)
+--parseInlines is = runParser is inlines 
+
+parseInlines :: List String -> Either ParseError (List Inline)
+parseInlines s = map consolidate $ runParser (S.joinWith "\n" $ A.fromFoldable s) inlines
+  --map consolidate
+  --  $ lmap parseErrorMessage
 
 inlines :: P (List Inline)
 inlines = L.many inline2 <* eof
@@ -143,7 +154,7 @@ inlines = L.many inline2 <* eof
   link :: P Inline
   link = Link <$> linkLabel <*> linkTarget
     where
-    linkLabel ∷ P (L.List Inline)
+    linkLabel ∷ P (List Inline)
     linkLabel = string "[" *> manyTill (inline0 <|> other) (string "]")
 
     linkTarget ∷ P LinkTarget
@@ -157,7 +168,7 @@ inlines = L.many inline2 <* eof
 
   emphasis
     :: P (Inline)
-    -> (L.List (Inline) → Inline)
+    -> (List (Inline) → Inline)
     -> String
     -> P Inline
   emphasis p f s = do
@@ -174,7 +185,7 @@ inlines = L.many inline2 <* eof
           <|> pure (Str "\\")
       else pure (Str c)
 
-parseBlocks :: List Container -> Either String (List Block)
+parseBlocks :: List Container -> Either ParseError (List Block)
 parseBlocks =
   case _ of
     Nil -> pure Nil
@@ -194,12 +205,12 @@ parseBlocks =
       map (Rule : _) $ parseBlocks cs
  
     (CATXHeader n s) : cs → do
-      hd ← parseInlines $ L.singleton s
-      tl ← parseBlocks cs
+      hd <- parseInlines $ L.singleton s
+      tl <- parseBlocks cs
       pure $ (Header n hd) : tl
     (CBlockquote cs) : cs1 → do
-      hd ← parseBlocks cs
-      tl ← parseBlocks cs1
+      hd <- parseBlocks cs
+      tl <- parseBlocks cs1
       pure $ (Blockquote hd) : tl
     (CListItem lt cs) : cs1 → do
       let
@@ -217,18 +228,15 @@ parseBlocks =
     L.Cons _ cs →
       parseBlocks cs
 
-parseInlines :: L.List String -> Either String (L.List Inline)
-parseInlines s = 
-  map consolidate
-    $ lmap parseErrorMessage
-    $ runParser (S.joinWith "\n" $ A.fromFoldable s) inlines
 
-consolidate :: L.List Inline -> L.List Inline
+consolidate :: List Inline -> List Inline
 consolidate =
   case _ of
     L.Nil -> L.Nil
     (Str s1) : (Str s2 : is) ->
       consolidate $ L.Cons (Str (s1 <> s2)) is
+    (Str s) : (Space : is) ->
+      consolidate $ L.Cons (Str ( s <> " ")) is
     i : is -> L.Cons i $ consolidate is 
 
 someOf
@@ -243,9 +251,9 @@ toString :: List Char -> String
 toString = (fromCharArray <<< toUnfoldable)
 
 parseContainers
-  :: L.List Container 
-  -> L.List String
-  -> L.List Container
+  :: List Container 
+  -> List String
+  -> List Container
 parseContainers acc L.Nil = L.reverse acc
 parseContainers acc (L.Cons s ss)
   | allChars isSpace s =

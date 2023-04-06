@@ -17,7 +17,7 @@ import Markup.Pretty (prettyPrintMd)
 import Deku.Core (Nut, Domable)
 import Deku.Control (text_, blank)
 import Deku.DOM as D
-import Parsing (runParser)
+import Parsing (runParser, parseErrorMessage)
 import Markup.Contracts (Theorem(..), theorem)
 import Markup.Math (inline)
 import Markup.Katex (defaultOptions)
@@ -61,7 +61,7 @@ renderMarkup_ (Markup bs) = D.div_ $ A.fromFoldable (map renderBlock bs)
 renderMarkup :: String -> Nut
 renderMarkup mkup = case parseMarkup mkup of
   Right m -> renderMarkup_ m
-  Left c -> text_ ("parse error: " <> c)
+  Left c -> text_ $ parseErrorMessage c
 
 renderTheorem :: forall lock payload. Theorem lock payload -> Domable lock payload
 renderTheorem (Theorem t) =

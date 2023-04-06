@@ -8,11 +8,12 @@ import Prelude
 
 import Markup.Render (renderMarkup, renderMarkup_)
 import Markup.Parser (parseMarkup)
-import Markup.Syntax (syntaxExample, Markup(..), Block(..), Inline(..), pretty)
+import Markup.Syntax (Markup(..), Block(..), Inline(..), pretty)
 import Markup.Examples (raw)
 import Markup.Keyboard (Key(..), keyAction, showKeyboardEvent) 
 
 import Data.Either (Either(..)) as Either
+import Data.Foldable (for_)
 import Data.List (List(..), (:), snoc)
 import Data.Tuple (Tuple)
 import Data.Tuple.Nested ((/\))
@@ -22,8 +23,8 @@ import Deku.Attribute ((!:=), cb)
 import Deku.Attributes (klass_)
 import Deku.Core (Nut)
 import Deku.Control (blank, guard, text, text_, (<#~>))
-import Deku.Listeners (keyDown)
-import Deku.Hooks (useState, useRef, useMailboxed)
+import Deku.Listeners (keyDown, textInput_)
+import Deku.Hooks (useState, useState', useRef, useMailboxed)
 import Deku.Do as Deku
 import Deku.DOM as D
 import Deku.Toplevel (runInBody)
@@ -33,12 +34,12 @@ import Effect.Class.Console (logShow, log)
 import Modal (modalClick)
 import QualifiedDo.Alt as Alt
 import Web.HTML (window)
-import Web.HTML.Window (navigator)
+import Web.HTML.HTMLInputElement (fromEventTarget, value)
 import Web.HTML.Navigator (platform)
-import Web.Event.Event (preventDefault)
+import Web.HTML.Window (navigator)
+import Web.Event.Event (preventDefault, target)
 import Web.UIEvent.MouseEvent (screenX, screenY)
 import Web.UIEvent.KeyboardEvent (toEvent, key, ctrlKey)
-
 
 data PlatForm 
   = Mac
@@ -61,8 +62,7 @@ data Focus
 
 editor :: Nut
 editor = Deku.do
-  setMarkup /\ markup <- useState syntaxExample
-  setRaw /\ rawSrc <- useState raw
+  setMarkup /\ markup <- useState'
   setPalette /\ paletteOpen <- useState  false
   setFocus /\ currentFocus <- useState Command
   D.div_
@@ -93,18 +93,11 @@ editor = Deku.do
               a  -> logShow $ show a
           )
         )
-        [ text rawSrc
+        [ markup <#~> renderMarkup_
         ]
       , D.div_ 
         [ text_ "Debug: "
-        , rawSrc <#~> 
-            (\s -> case parseMarkup s of
-              Either.Right m -> renderMarkup_ m
-              Either.Left s -> text_ s
-            )
         ]
-      , markup <#~> (renderMarkup_)
-      , markup <#~> (text_ <<< pretty)
       , guard paletteOpen (text_ "command palette")
     ]
     
@@ -112,9 +105,5 @@ editor = Deku.do
 main :: Effect Unit
 main = do
   window >>= navigator >>= platform >>= logShow 
-  (case parseMarkup raw of 
-    Either.Right m -> logShow m
-    Either.Left s -> log s
-  )
   runInBody Deku.do
     editor 

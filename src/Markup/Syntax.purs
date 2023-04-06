@@ -97,7 +97,7 @@ instance prettyInline :: Pretty Inline where
     SoftBreak -> "\n"
     Emph is -> wrap "*" is
     Strong is -> wrap "**" is
-    Code _ _ -> ""
+    Code _ b -> b
     Math s -> "$" <> s <> "$"
     Link _ _ -> ""
     where wrap s i = s <> (joinWith "" $ (map pretty (fromFoldable i))) <> s
@@ -138,7 +138,7 @@ instance showCodeBlockType :: Show CodeBlockType where
   show (Fenced evaluated info) = "(Fenced " <> show evaluated <> " " <> show info <> ")"
 
 instance showInline :: Show Inline where
-  show (Str s) = "Str " <> show s <> ")"
+  show (Str s) = "(Str " <> show s <> ")"
   show (Space) = "Space"
   show (LineBreak) = "LineBreak"
   show (SoftBreak) = "SoftBreak"
