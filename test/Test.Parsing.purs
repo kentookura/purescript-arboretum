@@ -27,6 +27,7 @@ import Markup.Syntax
   ( Inline(..)
   , Markup(..)
   , Block(..)
+  , LinkTarget(..)
   , class Pretty
   , pretty
   )
@@ -34,6 +35,10 @@ import Markup.Syntax
 import Markup.Parser
   ( inlines
   , parseMarkup
+  , parseBlocks
+  , parseInlines
+  , parseContainers
+  , consolidate
   , P(..)
   )
 
@@ -46,7 +51,7 @@ import Markup.Pretty (prettyPrintMd)
 
 
 
-testDocument :: Either String Markup -> Aff Unit
+testDocument :: Either ParseError Markup -> Aff Unit
 testDocument mkup = do
   let printed = prettyPrintMd <$> mkup
       parsed = printed >>= parseMarkup
@@ -57,7 +62,6 @@ testDocument mkup = do
   --  <> show printed 
   --  <> "Parsed:\n" 
   --  <> show parsed
-  logShow parsed
   equal parsed mkup
 
 failDocument :: Either String Markup -> Aff Unit
@@ -66,24 +70,16 @@ failDocument sd = assert "fails" (isLeft sd)
 main :: Effect Unit
 main = runTest do
   suite "Obtaining Inlines" do
-    test "Header" do
-      let expected = (Right 
-          (Markup 
-            (Header 1 (Str "Parse" : Space : Str "this" : Space : Str "Header!" : Nil):Nil
-            )
-          )
-        ) 
-      equal expected (parseMarkup "# Parse this Header!") 
-      logShow $ (pretty <$> expected)
+    test "consolidate" do
+      let expected = Str "Parse this string with spaces" : Nil
+      equal expected (consolidate (Str "Parse" : Space : Str "this" : Space : Str "string" : Space : Str "with" : Space : Str "spaces" : Nil))
     test "Paragraph" do
       let expected = (Right 
           (Markup 
-            (Paragraph (Str "Parse" : Space : Str "this" : Space : Str "Paragraph" : Nil):Nil
-            )
+            (Paragraph ((Str "Parse this Paragraph"):Nil):Nil)
           )
         ) 
       equal expected (parseMarkup "Parse this Paragraph") 
-      logShow $ (pretty <$> expected)
     test "Math" do
       let expected = (Right 
           (Markup 
@@ -92,10 +88,33 @@ main = runTest do
           )
         ) 
       equal expected (parseMarkup "$asdf$") 
-      logShow $ (pretty <$> expected)
-    test "Examples" do
-      logShow $ parseMarkup raw
-  suite "fromRepo" do
+    test "Emph" do
+      let expected = (Right 
+          (Markup 
+            (Paragraph (Strong ((Str "emphasized"):Nil):Nil):Nil
+            )
+          )
+        ) 
+      equal expected (parseMarkup "**emphasized**") 
+      equal expected (parseMarkup "__emphasized__") 
+    test "StrongEmph" do
+      let expected = (Right 
+          (Markup 
+            (Paragraph (Strong (Emph ((Str "emphasized"):Nil):Nil):Nil):Nil
+            )
+          )
+        ) 
+      equal expected (parseMarkup "***emphasized***") 
+      equal expected (parseMarkup "___emphasized___") 
+    test "Link" do
+      let expected = (Right 
+          (Markup 
+            (Paragraph ((Link ((Str "link"):Nil)) (InlineLink "http://purescript.org"):Nil):Nil
+            )
+          )
+        ) 
+      equal expected (parseMarkup "[link](http://purescript.org)")
+  suite "from original slamdown repo" do
     test "" do
       testDocument $ parseMarkup "Paragraph"
       testDocument $ parseMarkup "Paragraph with spaces"
