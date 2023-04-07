@@ -12,11 +12,11 @@ import Data.Map (Map, fromFoldable, lookup)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (unwrap)
 import Router.Route (Route(..))
-import Pages.Docs (docs)
+import Pages.Docs (book)
 
 pageOrder :: Array Route
 pageOrder = join $ map (unwrap >>> _.pages >>> map (unwrap >>> _.route))
-  (unwrap docs)
+  (unwrap book)
 
 pageOrderMinusOne = drop 1 pageOrder
 

@@ -3,8 +3,6 @@ module Pages.Demos
   ) where
 
 import Prelude
-import Math (inline, display, differentialEqn, typeahead, definedIn)
-import Katex (defaultOptions)
 import Contracts (Page, page, Section, section, Subsection, subsection)
 import Components.Code (psCode)
 import Components.Terminal (repl)
@@ -20,11 +18,13 @@ import Router.Route (Route(..))
 import Prism (forceHighlight)
 import QualifiedDo.Alt as Alt
 import Markup.Penrose (penroseExample, viewSources, myProgram)
-import Markup.Editor (BlockTypes(..), Config(..), Editor(..), editor)
-import Markup.Syntax (Markup(..))
-import Markup.Render (renderMarkup, renderTheorem)
+import Markup.Editor (editor)
+import Markup.Contracts (theorem)
+import Markup.Katex (defaultOptions)
+import Markup.Math (inline, display, differentialEqn, typeahead, definedIn)
 import Markup.Parser (parseMarkup)
-import Scribble.Contracts (theorem)
+import Markup.Render (renderMarkup, renderTheorem)
+import Markup.Syntax (Markup(..))
 
 demos :: forall lock payload. Page lock payload
 demos =
@@ -70,9 +70,9 @@ demos =
                               href_ "https://penrose.cs.cmu.edu"
                               D.Target !:= "_blank"
                             [ text_ " Penrose " ]
-                        --, text_ ". Currently disabled due to performance reasons."
-                        , penroseExample
-                        , viewSources myProgram
+                        , text_ ". Currently disabled due to performance reasons."
+                        --, penroseExample
+                        --, viewSources myProgram
                         ]
                     }
                 , subsection
@@ -85,20 +85,18 @@ demos =
                     { title: "Editor component"
                     , matter:
                         [ editor
-                            (Config { spec: { blocks: [ MarkupBlocks ] } })
-                            (Editor { content: Markup Nil })
                         ]
                     }
                 , subsection
                     { title: "Rendering theorems"
-                    , matter:
-                        renderTheorem <$>
-                          [ cauchyProblem
-                          , dAlembertFormula
-                          , liouville
-                          , comparisonPrinciple
-                          , meanValueHarmonic
-                          ]
+                    , matter: []
+                    --renderTheorem <$>
+                    --  [ cauchyProblem
+                    --  , dAlembertFormula
+                    --  , liouville
+                    --  , comparisonPrinciple
+                    --  , meanValueHarmonic
+                    --  ]
                     }
                 ]
             }

@@ -42,6 +42,6 @@ route = root $ sum
   { "Home": noArgs
   , "Demo": "demo" / noArgs
   , "CryptographyIntro": "cryptography" / "intro" / noArgs
-  , "Notes": "notes" / noArgs
+  , "Notes": "overview" / "notebook" / noArgs
   , "FourOhFour": "404" / noArgs
   }

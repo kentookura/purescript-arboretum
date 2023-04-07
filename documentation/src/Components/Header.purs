@@ -370,7 +370,7 @@ header
           , D.a
               ( oneOf
                   [ D.Class !:= "group"
-                  , D.Href !:= "https://github.com/mikesol/purescript-deku"
+                  , D.Href !:= "https://github.com/kentookura/deku-editor"
                   ]
               )
               [ D.svg

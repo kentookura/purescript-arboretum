@@ -48,9 +48,9 @@ newtype Section lock payload = Section
   , subsections :: Array (Subsection lock payload)
   }
 
-newtype Docs lock paylaod = Docs (Array (Chapter lock paylaod))
+newtype Book lock paylaod = Book (Array (Chapter lock paylaod))
 
-derive instance Newtype (Docs lock paylaod) _
+derive instance Newtype (Book lock paylaod) _
 newtype Chapter lock payload = Chapter
   { title :: String, path :: String, pages :: Array (Page lock payload) }
 

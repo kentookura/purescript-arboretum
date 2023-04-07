@@ -2,7 +2,6 @@ module Components.App where
 
 import Prelude
 
-import Math (editor)
 import Components.BottomNav (bottomNav)
 import Components.Header (header)
 import Components.LeftMatter (leftMatter)

@@ -1,16 +1,16 @@
 module Pages.Docs
-  ( docs
+  ( book
   ) where
 
 import Prelude
 
-import Contracts (Docs(..))
+import Contracts (Book(..))
 import Data.Maybe (Maybe(..))
 --import Pages.AdvancedUsage (advancedUsage)
 --import Pages.CoreConcepts (coreConcepts)
 --import Pages.FRP (frp)
-import Pages.Introduction (introduction)
+import Pages.Overview (overview)
 import Pages.Cryptography (cryptography)
 
-docs :: forall lock payload. Docs lock payload
-docs = Docs [ introduction, cryptography ]
+book :: forall lock payload. Book lock payload
+book = Book [ overview, cryptography ]

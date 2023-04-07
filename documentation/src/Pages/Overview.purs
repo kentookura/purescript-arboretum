@@ -1,4 +1,4 @@
-module Pages.Introduction where
+module Pages.Overview where
 
 import Prelude
 
@@ -7,6 +7,6 @@ import Contracts (Chapter, chapter)
 import Pages.Notes (notes)
 import Pages.Demos (demos)
 
-introduction :: forall lock payload. Chapter lock payload
-introduction = chapter
-  { title: "Interactive", pages: [ demos, notes ] }
+overview :: forall lock payload. Chapter lock payload
+overview = chapter
+  { title: "Overview", pages: [ demos, notes ] }

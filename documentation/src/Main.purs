@@ -33,7 +33,6 @@ import Web.HTML (window)
 import Web.HTML.Window (toEventTarget)
 import Components.Terminal (term)
 import Components.FileTree (viewNamespaceListing, testData)
-import Web.Requests (getMarkup)
 
 pixelBufferForScroll = 100.0 :: Number
 data ScrolledSection

@@ -14,7 +14,7 @@ import Deku.Core (Domable, Nut)
 import Deku.DOM as D
 import FRP.Event (Event)
 import Navigation (PushState)
-import Pages.Docs (docs)
+import Pages.Docs (book)
 import Router.Route (Route)
 
 pageLi
@@ -98,7 +98,7 @@ leftMatter opts = D.div
               "text-base lg:text-sm w-64 pr-8 xl:w-72 xl:pr-16"
           )
           [ D.ul (oneOf [ D.Role !:= "list", D.Class !:= "space-y-9" ])
-              (chapterLi opts <$> unwrap docs)
+              (chapterLi opts <$> unwrap book)
           ]
       ]
   ]
