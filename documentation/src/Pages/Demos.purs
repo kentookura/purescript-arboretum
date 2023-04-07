@@ -12,6 +12,7 @@ import Deku.Control (text_, blank)
 import Deku.DOM as D
 import Markup.Contracts (Theorem, theorem)
 import Markup.Editor (editor)
+import Markup.Examples (raw)
 import Markup.Katex (defaultOptions)
 import Markup.Math (inline, display)
 import Markup.Render (renderMarkup)
@@ -71,7 +72,7 @@ demos =
                 , subsection
                     { title: "Markdown Support"
                     , matter:
-                        [ renderMarkup markdownDoc
+                        [ renderMarkup raw
                         ]
                     }
                 , subsection
