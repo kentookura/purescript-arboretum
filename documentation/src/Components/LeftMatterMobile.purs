@@ -122,10 +122,10 @@ leftMatterMobile
               , link' pushState Home empty
                   [ D.img
                       ( oneOf
-                          [ 
+                          [
                             --darkBoolean <#> \dk -> D.Src :=
                             --  if dk then dekulogodarkURL else dekulogoURL
-                           klass_ "mb-2 ml-6 w-20 object-contain"
+                            klass_ "mb-2 ml-6 w-20 object-contain"
                           ]
                       )
                       []

@@ -14,7 +14,7 @@ import Effect (Effect)
 import FRP.Event (Event)
 import Navigation (PushState)
 import Router.Route (Route(..))
-import Router.Chapter (routeToChapter)  
+import Router.Chapter (routeToChapter)
 import Router.Page (routeToPage)
 import Web.Event.Event (preventDefault)
 import Web.Event.Internal.Types as Web

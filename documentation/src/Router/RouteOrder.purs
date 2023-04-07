@@ -4,8 +4,7 @@ module Router.RouteOrder
   , routeToNextRouteMap
   , routeToPrevRoute
   , routeToPrevRouteMap
-  )
-  where
+  ) where
 
 import Prelude
 import Data.Array (drop, zip)

@@ -36,8 +36,6 @@ shSessionCode code = D.pre (D.Class !:= "prism-code language-sh-session")
       ]
   ]
 
-
-
 -- 
 psCode'
   :: forall lock17 payload18
@@ -57,7 +55,6 @@ psCode = psCode' "" empty
 
 psCodeNoCollapse :: forall lock payload. String -> Domable lock payload
 psCodeNoCollapse = psCode' " no-collapse" (klass_ "no-collapse")
-
 
 psCodeWithLink'
   :: forall lock17 payload18

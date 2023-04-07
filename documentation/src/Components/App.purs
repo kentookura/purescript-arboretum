@@ -32,7 +32,7 @@ import FRP.Event (Event)
 import Navigation (PushState)
 import Prism (forceHighlightAff)
 import Router.Route (Route(..))
-import Router.Chapter (routeToChapter) 
+import Router.Chapter (routeToChapter)
 import Router.RouteOrder (routeToNextRoute, routeToPrevRoute)
 import Web.DOM as DOM
 

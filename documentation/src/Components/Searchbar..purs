@@ -1,7 +1,6 @@
 module Searchbar where
 
-
-a= 2
+a = 2
 --searchbar :: Nut
 --searchbar = 
 --    D.div (D.Class !:= "-my-5 mr-6 sm:mr-8 md:mr-0")

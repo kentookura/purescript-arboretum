@@ -1,6 +1,5 @@
 module Pages.FourOhFour where
 
-
 import Contracts (Env(..), Page, page)
 import Deku.Attribute ((!:=))
 import Deku.Control (text_)

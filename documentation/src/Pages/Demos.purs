@@ -38,19 +38,19 @@ demos =
                 pure
                   [ text_ "Below are demonstrations of the current capabilities."
                   ]
-            , subsections: 
+            , subsections:
                 [ subsection
                     { title: "Mathematical Markup"
                     , matter:
-                          [ text_ "I can write mathematics here, both inline expressions such as "
-                          , inline defaultOptions "a \\otimes b"
-                          , text_ " and in display mode:"
-                          , display defaultOptions "\\int_0^{\\infty}f(x) dx."
-                          ]
+                        [ text_ "I can write mathematics here, both inline expressions such as "
+                        , inline defaultOptions "a \\otimes b"
+                        , text_ " and in display mode:"
+                        , display defaultOptions "\\int_0^{\\infty}f(x) dx."
+                        ]
                     }
                 , subsection
                     { title: "Code Highlighting"
-                    , matter: 
+                    , matter:
                         [ text_ "Syntax highlighting is done by the "
                         , D.a
                             Alt.do
@@ -63,7 +63,7 @@ demos =
                     }
                 , subsection
                     { title: "Penrose Diagrams"
-                    , matter: 
+                    , matter:
                         [ text_ "We can generate diagrams using "
                         , D.a
                             Alt.do
@@ -77,7 +77,7 @@ demos =
                     }
                 , subsection
                     { title: "Markdown Support"
-                    , matter: 
+                    , matter:
                         [ renderMarkup markdownDoc
                         ]
                     }

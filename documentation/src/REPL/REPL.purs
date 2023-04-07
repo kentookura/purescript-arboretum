@@ -1,8 +1,7 @@
 module Components.Terminal
   ( repl
   , term
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -39,26 +38,22 @@ import Components.REPL.Interpreter (runInsect, MessageType(..), Message(..), Res
 import Components.REPL.Language (Statement(..))
 
 -- | 
-type Env = 
+type Env =
   { env :: Event Environment
   , setEnv :: Boolean -> Effect Unit
   }
 
 type REPL = NutWith Env
 
-
-
 --history :: REPL
 --history = do
 --  {env, setEnv } <- ask
 
-
-
 -- | Convert a message type to a string.
 msgTypeToString :: MessageType -> String
-msgTypeToString Info     = "info"
-msgTypeToString Error    = "error"
-msgTypeToString Value    = "value"
+msgTypeToString Info = "info"
+msgTypeToString Error = "error"
+msgTypeToString Value = "value"
 msgTypeToString ValueSet = "value-set"
 
 --repl_ :: Tuple Environment String -> {msg :: String, newEnv :: Environment }
@@ -68,6 +63,7 @@ data UIAction
   = Quit
   | Copy
   | Clear
+
 --data InputAction
 --  = Input
 --  | ChangeText String
@@ -76,30 +72,30 @@ repl :: Nut
 repl = Deku.do
   setEnv /\ env <- useState initialEnvironment
   pushAction /\ action <- useState'
-  let 
-    runInsect_  = \(env /\ stmt) -> runInsect env stmt
+  let
+    runInsect_ = \(env /\ stmt) -> runInsect env stmt
     parseInsect_ = \(env /\ str) -> parseInsect env str
-    
+
     input :: Event String
     input = compact
       ( mapAccum
-        ( \a b ->  case b of
-            Input -> "" /\ Just a
-            ChangeText s -> s /\ Nothing
-        )
-        ""
-        action
+          ( \a b -> case b of
+              Input -> "" /\ Just a
+              ChangeText s -> s /\ Nothing
+          )
+          ""
+          action
       )
 
     response :: Event Response
-    response  = map runInsect_ (Tuple <$> env <*> parsed)
+    response = map runInsect_ (Tuple <$> env <*> parsed)
 
     parsed :: Event Statement
     parsed = filterMap (parseInsect_ >>> hush)
       (Tuple <$> env <*> input)
 
-  D.div_ [
-      D.input
+  D.div_
+    [ D.input
         ( oneOf
             [ textInput $ pure (pushAction <<< ChangeText)
             , klass_ "text-gray-100 bg-gray-800 w-full"
@@ -111,19 +107,18 @@ repl = Deku.do
         []
     , dyn
         $ map
-            (\res -> Deku.do
-              {remove, sendTo } <- useDyn_
-              viewMessage res.msg
-              --setEnv res.newEnv
-              --text_ ""
-              --res.msg <#> case _ of
-              --  Message msgtype m -> text_ ""
-              --  _ -> text_ ""
-              --res.msg
+            ( \res -> Deku.do
+                { remove, sendTo } <- useDyn_
+                viewMessage res.msg
+            --setEnv res.newEnv
+            --text_ ""
+            --res.msg <#> case _ of
+            --  Message msgtype m -> text_ ""
+            --  _ -> text_ ""
+            --res.msg
             )
             response
     ]
-
 
 viewMessage :: Message -> Nut
 viewMessage msg = case msg of
@@ -179,18 +174,17 @@ data MainUIAction
   = Input
   | ChangeText String
 
-
 term :: Effect Unit
 term = runInBody Deku.do
   pushEnv /\ env <- useState initialEnvironment
   pushAction /\ action <- useState'
-  let 
+  let
     --output :: Event {msg :: String, newEnv :: Environment}
     --output = map repl_ 
     --  (Tuple <$> env <*> accumulateTextAndEmitOnSubmit)
-    
+
     --setEnv :: Event {msg :: String, msgType :: String, newEnv :: Environment} -> Effect Unit
-    setEnv (e :: Event {msg :: String, msgType :: String, newEnv :: Environment}) = 
+    setEnv (e :: Event { msg :: String, msgType :: String, newEnv :: Environment }) =
       map pushEnv (_.newEnv <$> e)
 
     accumulateTextAndEmitOnSubmit :: Event String
@@ -204,7 +198,7 @@ term = runInBody Deku.do
           action
       )
 
-    top :: Nut 
+    top :: Nut
     top = D.div (klass_ "top mb-2 flex")
       [ D.div (klass_ "h-3 w-3 bg-red-500 rounded-full") []
       , D.div (klass_ "ml-2 h-3 w-3 bg-orange-300 rounded-full") []
@@ -213,7 +207,7 @@ term = runInBody Deku.do
 
     cmdline :: Nut
     cmdline = D.div (klass_ "text-gra y-100 bg-gray-800")
-        [ D.div (klass_ "text-green-300 flex flex-row") 
+      [ D.div (klass_ "text-green-300 flex flex-row")
           [ text_ "❯ "
           , D.input
               ( oneOf
@@ -226,11 +220,11 @@ term = runInBody Deku.do
               )
               []
           ]
-        ]
+      ]
   D.div
-    (Alt.do
-      klass_ "coding inverse-toggle px-5 pt-4 shadow-lg text-gray-100 text-sm font-mono subpixel-antialiased bg-gray-800  pb-6 pt-4 rounded-lg leading-normal overflow-hidden"
-    ) 
+    ( Alt.do
+        klass_ "coding inverse-toggle px-5 pt-4 shadow-lg text-gray-100 text-sm font-mono subpixel-antialiased bg-gray-800  pb-6 pt-4 rounded-lg leading-normal overflow-hidden"
+    )
     [ top
     --, dyn
     --    $ map

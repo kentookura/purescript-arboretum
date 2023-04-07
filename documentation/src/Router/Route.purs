@@ -2,8 +2,7 @@ module Router.Route
   ( Route(..)
   , routeToTitle
   , route
-  )
-  where
+  ) where
 
 import Prelude hiding ((/))
 
@@ -40,9 +39,9 @@ routeToTitle CryptographyIntro = "Introduction to Cryptography"
 
 route :: RouteDuplex' Route
 route = root $ sum
-  { "Home" : noArgs
+  { "Home": noArgs
   , "Demo": "demo" / noArgs
-  , "CryptographyIntro" : "cryptography" / "intro"/ noArgs
-  , "Notes" : "notes" / noArgs
+  , "CryptographyIntro": "cryptography" / "intro" / noArgs
+  , "Notes": "notes" / noArgs
   , "FourOhFour": "404" / noArgs
   }

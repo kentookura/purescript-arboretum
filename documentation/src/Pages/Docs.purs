@@ -1,7 +1,6 @@
 module Pages.Docs
   ( docs
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -12,7 +11,6 @@ import Data.Maybe (Maybe(..))
 --import Pages.FRP (frp)
 import Pages.Introduction (introduction)
 import Pages.Cryptography (cryptography)
-
 
 docs :: forall lock payload. Docs lock payload
 docs = Docs [ introduction, cryptography ]

@@ -115,7 +115,7 @@ header
                   ( oneOf
                       [ --darkBoolean <#> \dk -> D.Src :=
                         --  if dk then dekulogodarkURL else dekulogoURL
-                      klass_ "w-20 object-contain"
+                        klass_ "w-20 object-contain"
                       ]
                   )
                   []

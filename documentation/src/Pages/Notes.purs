@@ -16,6 +16,7 @@ import Deku.Control (text_)
 --import Deku.DOM as D
 --import Pages.Zipper (zipper)
 import Router.Route (Route(..))
+
 --import Prism (forceHighlight)
 --import QualifiedDo.Alt as Alt
 
@@ -28,20 +29,21 @@ notes =
         [ section
             { title: "Notes"
             , topmatter: pure []
-            , subsections: [
-                subsection {
-                  title: "TODOS",
-                  matter: [
-                    D.ul_ [
-                      D.li_ [
-                        text_ "Differentiate terms: ",
-                        inline defaultOptions "(f+g)' = f' + g'",
-                        text_ " automatically. There is maybe some literature on doing something like this on the type level."
+            , subsections:
+                [ subsection
+                    { title: "TODOS"
+                    , matter:
+                        [ D.ul_
+                            [ D.li_
+                                [ text_ "Differentiate terms: "
+                                , inline defaultOptions "(f+g)' = f' + g'"
+                                , text_ " automatically. There is maybe some literature on doing something like this on the type level."
+
+                                ]
+                            ]
                         ]
-                    ]
-                  ]
-                }
-              ]
+                    }
+                ]
             }
         ]
     }
