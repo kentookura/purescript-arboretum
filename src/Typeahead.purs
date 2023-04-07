@@ -1,6 +1,5 @@
 module Typeahead
   ( Action(..)
-  )
-  where
+  ) where
 
 data Action = Increment | Decrement

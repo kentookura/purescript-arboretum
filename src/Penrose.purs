@@ -4,8 +4,7 @@ module Markup.Penrose
   , penroseExample
   , tabButton
   , viewSources
-  )
-  where
+  ) where
 
 import Prelude
 import Web.DOM (Element)
@@ -75,6 +74,7 @@ extension Domain = ".dom"
 
 tabButton :: String
 tabButton = "font-mono mb-0 flex w-full cursor-pointer items-center justify-center rounded-lg border-0 px-0 py-1 transition-all ease-in-out"
+
 viewSources
   :: { domain :: String
      , style :: String
@@ -90,24 +90,24 @@ viewSources p = Deku.do
     [ D.ul
         Alt.do
           klass_ "relative flex list-none flex-wrap rounded-lg p-1 mt-0"
-      $
-        map
-          ( \(Tuple ft ext) ->
-              D.li
-                Alt.do
-                  let base = "flex-auto text-center"
-                  klass_ ""
-                [ D.a
-                    Alt.do
-                      klass_ tabButton
-                      click_ $ viewFile ft
-                    [ text_ ext ]
-                ]
-          )
-          [ (Substance /\ ".sub")
-          , (Domain /\ ".dom")
-          , (Style /\ ".sty")
-          ]
+        $
+          map
+            ( \(Tuple ft ext) ->
+                D.li
+                  Alt.do
+                    let base = "flex-auto text-center"
+                    klass_ ""
+                  [ D.a
+                      Alt.do
+                        klass_ tabButton
+                        click_ $ viewFile ft
+                      [ text_ ext ]
+                  ]
+            )
+            [ (Substance /\ ".sub")
+            , (Domain /\ ".dom")
+            , (Style /\ ".sty")
+            ]
     , D.pre
         (D.Class !:= ("prism-code"))
         [ D.code_

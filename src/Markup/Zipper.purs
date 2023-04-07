@@ -13,8 +13,7 @@ module Zipper
   , up
   , viewTerm
   , viewZipper
-  )
-  where
+  ) where
 
 -- https://michaeldadams.org/papers/scrap_your_zippers/ScrapYourZippers-2010.pdf
 import Data.Foldable
@@ -65,7 +64,6 @@ viewZipper z = acc (z.context) (viewTerm z.filler)
     (If_1 c t2 t3) -> foldl append mempty [ "if ", acc c o, " then ", viewTerm t2, "else ", viewTerm t3 ]
     (If_2 t1 c t3) -> foldl append mempty [ "if ", viewTerm t1, " then ", acc c o, "else ", viewTerm t3 ]
     (If_3 t1 t2 c) -> foldl append mempty [ "if ", viewTerm t1, " then ", viewTerm t2, "else ", acc c o ]
-
 
 toZipper :: Term -> TermZipper
 toZipper t = { filler: t, context: Root }

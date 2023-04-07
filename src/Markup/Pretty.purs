@@ -1,4 +1,4 @@
-module Markup.Pretty 
+module Markup.Pretty
   ( prettyPrintMd
   ) where
 
@@ -97,18 +97,18 @@ prettyPrintInline il =
         bang <> "`" <> s <> "`"
     Link is tgt -> "[" <> prettyPrintInlines is <> "]" <> printTarget tgt
     Math s -> "$" <> s <> "$"
-    --Image is url -> "![" <> prettyPrintInlines is <> "](" <> url <> ")"
-    --FormField l r e ->
-    --  let
-    --    star = if r then "*" else" "
-    --  in
-    --    esc l <> star <> " = " <> prettyPrintFormElement e
-    where
-      esc s = M.maybe s (const $ "[" <> s <> "]") $ S.indexOf (S.Pattern " ") s
-      printTarget :: LinkTarget -> String
-      printTarget (InlineLink url) = parens url
-      printTarget (ReferenceLink tgt) = squares (M.fromMaybe "" tgt)
+  --Image is url -> "![" <> prettyPrintInlines is <> "](" <> url <> ")"
+  --FormField l r e ->
+  --  let
+  --    star = if r then "*" else" "
+  --  in
+  --    esc l <> star <> " = " <> prettyPrintFormElement e
+  where
+  esc s = M.maybe s (const $ "[" <> s <> "]") $ S.indexOf (S.Pattern " ") s
 
+  printTarget :: LinkTarget -> String
+  printTarget (InlineLink url) = parens url
+  printTarget (ReferenceLink tgt) = squares (M.fromMaybe "" tgt)
 
 prettyPrintDate :: DT.Date -> String
 prettyPrintDate d =
@@ -120,12 +120,11 @@ prettyPrintDate d =
 
 printIntPadded :: Int -> Int -> String
 printIntPadded l i =
-  if dl > 0
-  then S.fromCharArray (U.replicate dl '0') <> s
+  if dl > 0 then S.fromCharArray (U.replicate dl '0') <> s
   else s
   where
-    s = show i
-    dl = l - S.length s
+  s = show i
+  dl = l - S.length s
 
 parens :: String -> String
 parens s = "(" <> s <> ")"

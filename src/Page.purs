@@ -4,8 +4,7 @@ module Page
   , px
   , scrollToTop
   , scrollToTop_
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -43,6 +42,7 @@ px =
 
   <p>And now, without further ado, check out the <a ~next~ style="cursor:pointer;">hello world section</a>!</p>
 </div>"""
+
 intro :: forall r. { | PageOptions r } -> Nut
 intro options = px ~~
   { next: oneOfMap pure

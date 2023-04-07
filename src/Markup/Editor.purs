@@ -1,8 +1,7 @@
 module Markup.Editor
   ( editor
   , main
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -10,7 +9,7 @@ import Markup.Render (renderMarkup, renderMarkup_)
 import Markup.Parser (parseMarkup)
 import Markup.Syntax (Markup(..), Block(..), Inline(..), pretty)
 import Markup.Examples (raw)
-import Markup.Keyboard (Key(..), keyAction, showKeyboardEvent) 
+import Markup.Keyboard (Key(..), keyAction, showKeyboardEvent)
 
 import Data.Either (Either(..)) as Either
 import Data.Foldable (for_)
@@ -41,7 +40,7 @@ import Web.Event.Event (preventDefault, target)
 import Web.UIEvent.MouseEvent (screenX, screenY)
 import Web.UIEvent.KeyboardEvent (toEvent, key, ctrlKey)
 
-data PlatForm 
+data PlatForm
   = Mac
   | Linux
   | Windows
@@ -49,61 +48,59 @@ data PlatForm
 
 edit :: Key -> Markup -> Markup
 edit key (Markup m) = case key of
-  Enter -> Markup (snoc m (Paragraph (Str "Appended via Edit":Nil)))
-  SpaceKey -> Markup (snoc m (Paragraph (Str " ":Nil)))
+  Enter -> Markup (snoc m (Paragraph (Str "Appended via Edit" : Nil)))
+  SpaceKey -> Markup (snoc m (Paragraph (Str " " : Nil)))
   _ -> Markup m
 
-data Focus 
+data Focus
   = Command
   | AutoComplete
   | Editor
 
-
-
 editor :: Nut
 editor = Deku.do
   setMarkup /\ markup <- useState'
-  setPalette /\ paletteOpen <- useState  false
+  setPalette /\ paletteOpen <- useState false
   setFocus /\ currentFocus <- useState Command
   D.div_
     [ D.pre
-        (Alt.do
-          D.Contenteditable !:= "true"
-          D.OnAuxclick !:= cb \e -> do
-            preventDefault e
-            log "TODO: Wire up context menu"
-          keyDown $ markup <#> (\currentState ->
-            \event -> 
-            case keyAction event of
-              Enter -> do
-                setMarkup (edit Enter currentState)
-              Escape -> do
-                setPalette false
-              Unhandled e ->
-                let
-                  k
-                    | (key e == "p" && ctrlKey e) = do
-                      preventDefault (toEvent e)
-                      logShow $ showKeyboardEvent e
-                      setPalette true
-                      modalClick (setPalette false)
-                    | otherwise = logShow $ showKeyboardEvent e
-                in 
-                  k
-              a  -> logShow $ show a
-          )
+        ( Alt.do
+            D.Contenteditable !:= "true"
+            D.OnAuxclick !:= cb \e -> do
+              preventDefault e
+              log "TODO: Wire up context menu"
+            keyDown $ markup <#>
+              ( \currentState ->
+                  \event ->
+                    case keyAction event of
+                      Enter -> do
+                        setMarkup (edit Enter currentState)
+                      Escape -> do
+                        setPalette false
+                      Unhandled e ->
+                        let
+                          k
+                            | (key e == "p" && ctrlKey e) = do
+                                preventDefault (toEvent e)
+                                logShow $ showKeyboardEvent e
+                                setPalette true
+                                modalClick (setPalette false)
+                            | otherwise = logShow $ showKeyboardEvent e
+                        in
+                          k
+                      a -> logShow $ show a
+              )
         )
         [ markup <#~> renderMarkup_
         ]
-      , D.div_ 
+    , D.div_
         [ text_ "Debug: "
         ]
-      , guard paletteOpen (text_ "command palette")
+    , guard paletteOpen (text_ "command palette")
     ]
-    
 
 main :: Effect Unit
 main = do
-  window >>= navigator >>= platform >>= logShow 
+  window >>= navigator >>= platform >>= logShow
   runInBody Deku.do
-    editor 
+    editor

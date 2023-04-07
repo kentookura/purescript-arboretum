@@ -9,8 +9,8 @@ data Key
   | Right
   | Up
   | Down
-  | Shift 
-  | Control 
+  | Shift
+  | Control
   | Alt
   | Tab
   | ShiftTab
@@ -34,15 +34,14 @@ data Key
   | Yank
   | Unhandled KeyboardEvent
 
-
 instance showKey :: Show Key where
   show SpaceKey = "Space"
   show Left = "Left"
   show Right = "Right"
   show Up = "Up"
   show Down = "Down"
-  show Shift  = "Shift "
-  show Control  = "Control "
+  show Shift = "Shift "
+  show Control = "Control "
   show Alt = "Alt"
   show Tab = "Tab"
   show ShiftTab = "ShiftTab"
@@ -70,38 +69,39 @@ showKeyboardEvent k =
   let
     isCtrl = ctrlKey k
     isShift = shiftKey k
-  in 
-    "{ " <> key k  <> ", ctrlKey: " <> show isCtrl <> ", isShift: " <> show isShift <> "}"
+  in
+    "{ " <> key k <> ", ctrlKey: " <> show isCtrl <> ", isShift: " <> show isShift <> "}"
 
 keyAction :: KeyboardEvent -> Key
 keyAction e =
-  let 
+  let
     isShift = shiftKey e
     isCtrl = ctrlKey e
     k
       | (key e == "backspace") = Backspace
       | (key e == "Enter") = Enter
       | isCtrl || (isShift && isCtrl) =
-        let 
-          k2
-            | key e == "a" = SelectAll
-            | key e == "y" = Redo
-            | key e == "z" = Undo
-            | key e == "s" = Save
-            | key e == "x" = Yank
-            | key e == "c" = Copy
-            | key e == "v" = Paste
-            | otherwise = Unhandled e
-        in k2
-      | (key e == "Tab" && isShift) = ShiftTab 
+          let
+            k2
+              | key e == "a" = SelectAll
+              | key e == "y" = Redo
+              | key e == "z" = Undo
+              | key e == "s" = Save
+              | key e == "x" = Yank
+              | key e == "c" = Copy
+              | key e == "v" = Paste
+              | otherwise = Unhandled e
+          in
+            k2
+      | (key e == "Tab" && isShift) = ShiftTab
       | (key e == "Enter" && isShift) = ShiftEnter
-      | (code e == "Space" ) = SpaceKey
+      | (code e == "Space") = SpaceKey
       | (key e == "ArrowLeft") = Left
       | (key e == "ArrowRight") = Right
       | (key e == "ArrowUp") = Up
       | (key e == "ArrowDown") = Down
-      | (key e == "Shift") = Shift 
-      | (key e == "Control") = Control 
+      | (key e == "Shift") = Shift
+      | (key e == "Control") = Control
       | (key e == "Alt") = Alt
       | (key e == "Tab") = Tab
       | (key e == "Escape") = Escape
@@ -115,4 +115,5 @@ keyAction e =
       | (key e == "") = CapsLock -- TODO
       | (key e == "") = Backspace
       | otherwise = Unhandled e
-  in k
+  in
+    k

@@ -84,7 +84,7 @@ consolidate =
     i : is -> Cons i $ consolidate is
 
 instance semigroupInline :: Semigroup Inlines where
-  append (Many is) (Many js) = Many (consolidate $ concat $ L.fromFoldable [is, js])
+  append (Many is) (Many js) = Many (consolidate $ concat $ L.fromFoldable [ is, js ])
 
 instance showMarkup :: Show Markup where
   show (Markup bs) = "(Markup " <> show bs <> ")"
@@ -92,7 +92,6 @@ instance showMarkup :: Show Markup where
 instance prettyMarkup :: Pretty LinkTarget where
   pretty (InlineLink s) = s
   pretty (ReferenceLink s) = show s
-
 
 class Pretty a where
   pretty :: a -> String

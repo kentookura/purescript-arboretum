@@ -8,7 +8,7 @@ module Markup.Katex
   , Accent(..)
   ) where
 
-import Prelude 
+import Prelude
 import Effect (Effect)
 import Data.Set
 import Data.Maybe (Maybe)
@@ -111,9 +111,7 @@ data Expr
   | Equals Expr Expr
   | Custom Binop Expr Expr
 
-data Binop
-  = Binop String
-
+data Binop = Binop String
 
 instance showBinop :: Show Binop where
   show (Binop s) = s
@@ -127,7 +125,7 @@ instance showExpr :: Show Expr where
   show (By e1 e2) = show e1 <> "/" <> show e2
   show (Equals e1 e2) = show e1 <> "=" <> show e2
   show (Custom op e1 e2) = show e1 <> show op <> show e2
-  
+
 instance showAccent :: Show Accent where
   show Prime = "'"
   show DoublePrime = "''"
@@ -136,8 +134,8 @@ instance showAccent :: Show Accent where
   show Dot = "\\dot"
   show DDot = "\\ddot"
   show Grave = "\\grave"
-  show Hat= "\\hat"
-  show WideHat= "\\widehat"
+  show Hat = "\\hat"
+  show WideHat = "\\widehat"
   show Tilde = "\\tilde"
   show WideTilde = "\\widetilde"
   show UTilde = "\\utilde"
@@ -160,6 +158,7 @@ instance showAccent :: Show Accent where
   show Overlinesegment = "\\overlinesegment"
   show Underlinesegment = "\\underlinesegment"
   show Underbar = "\\underbar"
+
 type KatexSettings =
   { displayMode :: Boolean
   , output :: String
@@ -169,7 +168,7 @@ type KatexSettings =
   , errorColor :: String
   , minRuleThickens :: Number
   , colorIsTextColor :: Boolean
-  , macros :: Array ({define:: String, toBe :: String})
+  , macros :: Array ({ define :: String, toBe :: String })
   --, maxSize :: Number
   --, maxExpand :: Number
   , strict :: Boolean
@@ -177,27 +176,28 @@ type KatexSettings =
   }
 
 defaultOptions :: KatexSettings
-defaultOptions = 
-  { displayMode : false
-  , output : "htmlAndMathMl"
-  , leqno : false
-  , fleqn : false
-  , throwOnError : true
-  , errorColor : "#cc0000"
-  , minRuleThickens : 0.04
-  , colorIsTextColor : true
-  , macros : []
+defaultOptions =
+  { displayMode: false
+  , output: "htmlAndMathMl"
+  , leqno: false
+  , fleqn: false
+  , throwOnError: true
+  , errorColor: "#cc0000"
+  , minRuleThickens: 0.04
+  , colorIsTextColor: true
+  , macros: []
   --, maxSize : Number
   -- , maxExpand : Number
-  , strict : false
-  , trust : false
+  , strict: false
+  , trust: false
   }
 
 toggleDisplay :: KatexSettings -> KatexSettings
 toggleDisplay ops = case ops.displayMode of
-  true ->( ops { displayMode = false})
-  false -> ( ops { displayMode = true})
+  true -> (ops { displayMode = false })
+  false -> (ops { displayMode = true })
+
 data Macros = Object
 
 foreign import viewKatex :: String -> Element -> KatexSettings -> Effect Unit
-foreign import _renderToStringNullable :: String -> { displayMode :: Boolean} -> Effect Unit
+foreign import _renderToStringNullable :: String -> { displayMode :: Boolean } -> Effect Unit

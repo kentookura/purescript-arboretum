@@ -2,7 +2,7 @@ module Markup.Parser where
 
 import Prelude
 
-import Markup.Syntax 
+import Markup.Syntax
   ( Block(..)
   , ListType(..)
   , Inline(..)
@@ -149,21 +149,21 @@ inlines = L.many inline2 <* eof
   link :: P Inline
   link = Link <$> linkLabel <*> linkTarget
     where
-    linkLabel ∷ P (List Inline)
+    linkLabel :: P (List Inline)
     linkLabel = string "[" *> manyTill (inline0 <|> other) (string "]")
 
-    linkTarget ∷ P LinkTarget
+    linkTarget :: P LinkTarget
     linkTarget = inlineLink <|> referenceLink
 
-    inlineLink ∷ P LinkTarget
+    inlineLink :: P LinkTarget
     inlineLink = InlineLink <<< fromCharArray <<< A.fromFoldable <$> (string "(" *> manyTill anyChar (string ")"))
 
-    referenceLink ∷ P LinkTarget
+    referenceLink :: P LinkTarget
     referenceLink = ReferenceLink <$> optionMaybe ((fromCharArray <<< A.fromFoldable) <$> (string "[" *> manyTill anyChar (string "]")))
 
   emphasis
     :: P (Inline)
-    -> (List (Inline) → Inline)
+    -> (List (Inline) -> Inline)
     -> String
     -> P Inline
   emphasis p f s = do
@@ -198,28 +198,28 @@ parseBlocks =
     CRule : cs ->
       map (Rule : _) $ parseBlocks cs
 
-    (CATXHeader n s) : cs → do
+    (CATXHeader n s) : cs -> do
       hd <- parseInlines $ L.singleton s
       tl <- parseBlocks cs
       pure $ (Header n hd) : tl
-    (CBlockquote cs) : cs1 → do
+    (CBlockquote cs) : cs1 -> do
       hd <- parseBlocks cs
       tl <- parseBlocks cs1
       pure $ (Blockquote hd) : tl
-    (CListItem lt cs) : cs1 → do
+    (CListItem lt cs) : cs1 -> do
       let
         sp = L.span (isListItem lt) cs1
-      bs ← parseBlocks cs
-      bss ← traverse (parseBlocks <<< getCListItem) sp.init
-      tl ← parseBlocks sp.rest
+      bs <- parseBlocks cs
+      bss <- traverse (parseBlocks <<< getCListItem) sp.init
+      tl <- parseBlocks sp.rest
       pure $ (Lst lt (bs : bss)) : tl
-    (CCodeBlockIndented ss) : cs →
+    (CCodeBlockIndented ss) : cs ->
       map ((CodeBlock Indented ss) : _) $ parseBlocks cs
-    (CCodeBlockFenced eval info ss) : cs →
+    (CCodeBlockFenced eval info ss) : cs ->
       map ((CodeBlock (Fenced eval info) ss) : _) $ parseBlocks cs
-    (CLinkReference b) : cs →
+    (CLinkReference b) : cs ->
       map (b : _) $ parseBlocks cs
-    L.Cons _ cs →
+    L.Cons _ cs ->
       parseBlocks cs
 
 someOf
@@ -465,7 +465,7 @@ isCodeFence s = isSimpleFence s || (isEvaluatedCode s && isSimpleFence (S.drop 1
   where
   isSimpleFence s' = S.countPrefix (isFenceChar <<< S.singleton) s' >= 3
 
-isEvaluatedCode :: String → Boolean
+isEvaluatedCode :: String -> Boolean
 isEvaluatedCode s = S.take 1 s == "!"
 
 isFenceChar :: String -> Boolean
@@ -483,8 +483,8 @@ splitCodeFence
   :: Int
   -> String
   -> L.List String
-  -> { codeLines ∷ L.List String
-     , otherLines ∷ L.List String
+  -> { codeLines :: L.List String
+     , otherLines :: L.List String
      }
 splitCodeFence indent fence ss =
   let
@@ -495,13 +495,13 @@ splitCodeFence indent fence ss =
     , otherLines: L.drop 1 sp.rest
     }
   where
-  isClosingFence ∷ String → Boolean
-  isClosingFence s = S.countPrefix (\c → S.singleton c == fence) (removeNonIndentingSpaces s) >= 3
+  isClosingFence :: String -> Boolean
+  isClosingFence s = S.countPrefix (\c -> S.singleton c == fence) (removeNonIndentingSpaces s) >= 3
 
-  removeIndentTo ∷ String → String
+  removeIndentTo :: String -> String
   removeIndentTo s = S.drop (min indent (countLeadingSpaces s)) s
 
-isLinkReference ∷ String → Boolean
+isLinkReference :: String -> Boolean
 isLinkReference s = S.take 1 s == "[" && M.isJust (Ref.parseLinkReference s)
 
 min :: forall a. (Ord a) => a -> a -> a

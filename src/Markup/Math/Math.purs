@@ -6,8 +6,7 @@ module Markup.Math
   , display
   , typeahead
   , editor
-  )
-  where
+  ) where
 
 import Data.Maybe
 import Prelude
@@ -43,13 +42,11 @@ import Web.HTML.HTMLInputElement (fromEventTarget, value, valueAsNumber)
 import Web.HTML.Window (alert)
 import Web.UIEvent.KeyboardEvent (code, toEvent)
 
-
 accentuate :: String -> Accent -> String
 accentuate s a = show a <> wrapBraces s
 
 wrapBraces :: String -> String
-wrapBraces s  = "{" <> s <> "}"
-
+wrapBraces s = "{" <> s <> "}"
 
 inputKls :: String
 inputKls =
@@ -122,7 +119,6 @@ typeahead = Deku.do
             (Tuple <$> pos <|*> item)
     ]
 
-
 data Location = Location
 
 instance showLoc :: Show Location where
@@ -132,18 +128,18 @@ class Katex a where
   operatorName :: a -> String
   katex :: KatexSettings -> Array Macro -> a -> Nut
 
-type Macro = {define ::  String, toBe :: String }
+type Macro = { define :: String, toBe :: String }
 
 macro :: Macro
-macro = { define: "\\Spec" , toBe: "\\text{Spec}" }
+macro = { define: "\\Spec", toBe: "\\text{Spec}" }
 
-definedIn :: {define :: String, toBe :: String} -> Location -> Nut
-definedIn m l = 
-  D.div_ 
-    [ render_ defaultOptions macro.toBe 
+definedIn :: { define :: String, toBe :: String } -> Location -> Nut
+definedIn m l =
+  D.div_
+    [ render_ defaultOptions macro.toBe
     , text_ ", defined in "
-    , text_ $ show l]
-
+    , text_ $ show l
+    ]
 
 --definedIn :: Katex a => KatexSettings -> Location -> Array ({define :: String, toBe :: String}) -> Nut
 --definedIn config l macro = 
@@ -151,62 +147,63 @@ definedIn m l =
 
 editor :: Nut
 editor =
-     Deku.do
-        --setContent /\ content <- useState testZipper
-        setConfig /\ config <- useState defaultOptions
-        setString /\ math <- useState "abc"
-        setControls /\ controls <- useState false
-        D.div_
-          [ render {config, katex: math}
-          , D.button Alt.do
-                click $ config <#> toggleDisplay >>> setConfig
-                klass_ "cursor-pointer"
-              [ text_ "Toggle Display" ]
-          , D.div
-              Alt.do
-                --D.OnMouseover !:= cb \e -> do
-                --  c <- controls
-                  --do
-                    --setControls c
-                D.OnMouseleave !:= cb \e -> do
-                  logShow "mouseleave"
-            [ D.div_ [ guard controls (text_ "click clack")]
-            ,  display defaultOptions "a^2 + b^2 = c^2" 
-            ]
-          , D.ul_
-              $ map
-                  ( \op ->
-                      D.li
-                        ( Alt.do
-                            D.Self
-                              !:= \(e :: Element) -> do
-                                  viewKatex (show op) e (defaultOptions {displayMode = true})
-                        )
-                        []
-                  )
-                  [ Sum
-                  , Integral
-                  , Bigotimes
-                  , Bigoplus
-                  , Product
-                  ]
+  Deku.do
+    --setContent /\ content <- useState testZipper
+    setConfig /\ config <- useState defaultOptions
+    setString /\ math <- useState "abc"
+    setControls /\ controls <- useState false
+    D.div_
+      [ render { config, katex: math }
+      , D.button
+          Alt.do
+            click $ config <#> toggleDisplay >>> setConfig
+            klass_ "cursor-pointer"
+          [ text_ "Toggle Display" ]
+      , D.div
+          Alt.do
+            --D.OnMouseover !:= cb \e -> do
+            --  c <- controls
+            --do
+            --setControls c
+            D.OnMouseleave !:= cb \e -> do
+              logShow "mouseleave"
+          [ D.div_ [ guard controls (text_ "click clack") ]
+          , display defaultOptions "a^2 + b^2 = c^2"
           ]
+      , D.ul_
+          $ map
+              ( \op ->
+                  D.li
+                    ( Alt.do
+                        D.Self
+                          !:= \(e :: Element) -> do
+                            viewKatex (show op) e (defaultOptions { displayMode = true })
+                    )
+                    []
+              )
+              [ Sum
+              , Integral
+              , Bigotimes
+              , Bigoplus
+              , Product
+              ]
+      ]
 
-inline :: KatexSettings -> String ->  Nut
+inline :: KatexSettings -> String -> Nut
 inline config s =
-  D.span Alt.do
-    D.Self !:= \(e :: Element) -> do
-      viewKatex s e (config {displayMode = false})
-  []
+  D.span
+    Alt.do
+      D.Self !:= \(e :: Element) -> do
+        viewKatex s e (config { displayMode = false })
+    []
 
-
-display :: KatexSettings ->  String -> Nut
+display :: KatexSettings -> String -> Nut
 display config s =
-  D.span Alt.do
-    D.Self !:= \(e :: Element) -> do
-      viewKatex s e (config { displayMode = true })
-  []
-
+  D.span
+    Alt.do
+      D.Self !:= \(e :: Element) -> do
+        viewKatex s e (config { displayMode = true })
+    []
 
 buttonClass :: String
 buttonClass =
@@ -270,28 +267,30 @@ differentialEqn = Deku.do
 --  => n
 --  -> Domable lock payload
 --render = do
-      
-      
 
-render ::
-  forall lock payload.
-  { config :: Event KatexSettings
-  , katex :: Event String
-  } ->
-  Domable lock payload
-render { config, katex } = 
-  (Tuple <$> config <*> katex ) <#~>
+render
+  :: forall lock payload
+   . { config :: Event KatexSettings
+     , katex :: Event String
+     }
+  -> Domable lock payload
+render { config, katex } =
+  (Tuple <$> config <*> katex) <#~>
     \(cfg /\ ktx) ->
-      D.span Alt.do
-        D.Self !:= \elt -> do
-          viewKatex ktx elt cfg
-      []
+      D.span
+        Alt.do
+          D.Self !:= \elt -> do
+            viewKatex ktx elt cfg
+        []
 
-render_ ::
-  forall lock payload.
-  KatexSettings -> String -> Domable lock payload
-render_  config katex = 
-  D.span Alt.do
-    D.Self !:= \elt -> do
-      viewKatex katex elt config
-  []
+render_
+  :: forall lock payload
+   . KatexSettings
+  -> String
+  -> Domable lock payload
+render_ config katex =
+  D.span
+    Alt.do
+      D.Self !:= \elt -> do
+        viewKatex katex elt config
+    []

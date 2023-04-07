@@ -10,7 +10,6 @@ import Effect.Aff (launchAff_)
 import Effect.Class.Console (log)
 import Markup.Parser (parseMarkup)
 
-
 getMarkup :: Effect Unit
 getMarkup = launchAff_ $ do
   result <- get driver string "/examples/hello.md"

@@ -2,8 +2,7 @@ module Markup.Render
   ( renderMarkup
   , renderMarkup_
   , renderTheorem
-  )
-  where
+  ) where
 
 import Prelude
 import Data.Array as A
@@ -22,9 +21,8 @@ import Markup.Contracts (Theorem(..), theorem)
 import Markup.Math (inline)
 import Markup.Katex (defaultOptions)
 
-
 renderInline :: Inline -> Nut
-renderInline = 
+renderInline =
   case _ of
     Str s -> text_ s
     Space -> text_ " "
@@ -32,12 +30,12 @@ renderInline =
     SoftBreak -> D.br_ []
     Emph is -> D.i_ $ A.fromFoldable (map renderInline is)
     Strong is -> D.strong_ $ A.fromFoldable (map renderInline is)
-    Code bool str -> D.code_ [text_ str]
+    Code bool str -> D.code_ [ text_ str ]
     Link is tgt -> D.a_ $ A.fromFoldable (map renderInline is)
     Math s -> inline defaultOptions s
 
 renderBlock :: Block -> Nut
-renderBlock = 
+renderBlock =
   case _ of
     Paragraph is -> D.div_ $ A.fromFoldable (map renderInline is)
     Header lvl is -> D.h3_ $ A.fromFoldable (map renderInline is)
@@ -50,10 +48,10 @@ renderBlock =
 
     CodeBlock blockType lines -> D.code_ $ A.fromFoldable (map text_ lines)
     LinkReference s1 s2 -> blank
-    Rule -> D.br_ [] 
+    Rule -> D.br_ []
 
 renderListBlock :: List Block -> Nut
-renderListBlock bs = D.li_ [foldl ((<>)) blank (map renderBlock bs)]
+renderListBlock bs = D.li_ [ foldl ((<>)) blank (map renderBlock bs) ]
 
 renderMarkup_ :: Markup -> Nut
 renderMarkup_ (Markup bs) = D.div_ $ A.fromFoldable (map renderBlock bs)
@@ -65,8 +63,8 @@ renderMarkup mkup = case parseMarkup mkup of
 
 renderTheorem :: forall lock payload. Theorem lock payload -> Domable lock payload
 renderTheorem (Theorem t) =
-  D.div_ 
-    [ D.h2_ $ [text_ t.title]
+  D.div_
+    [ D.h2_ $ [ text_ t.title ]
     , t.statement
-    , t.proof 
+    , t.proof
     ]

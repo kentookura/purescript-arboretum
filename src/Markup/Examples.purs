@@ -1,11 +1,11 @@
 module Markup.Examples
   ( raw
-  )
-  where
+  ) where
 
 import Prelude
 
-raw = """# Foobar
+raw =
+  """# Foobar
 
 Foobar is a Python library for dealing with word pluralization.
 

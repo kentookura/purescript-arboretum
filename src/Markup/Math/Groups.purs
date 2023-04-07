@@ -10,14 +10,12 @@ import Data.Maybe (Maybe)
 import Effect (Effect)
 import QualifiedDo.Alt as Do
 
-
 --data Group = Cyclic Int | Dihedral | Symmetric
 
 --data Group :: forall k. k -> Type
 --data Group n = Proxy
 
 newtype Mod = Mod Int
-
 
 compose :: Int -> Int -> Mod -> Int
 compose i j (Mod m) = i + j `mod` m
@@ -29,6 +27,5 @@ compose i j (Mod m) = i + j `mod` m
 --brute :: (?T)
 --brute n = map (\i k -> ( i + k `mod` n))(tilN) 
 --  where tilN = range 0 n
-
 
 --roteateBy :: Int -> Array Int -> ArrayInt
