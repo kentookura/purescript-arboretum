@@ -5,7 +5,6 @@ module Pages.Docs
 import Prelude
 
 import Contracts (Book(..))
-import Data.Maybe (Maybe(..))
 --import Pages.AdvancedUsage (advancedUsage)
 --import Pages.CoreConcepts (coreConcepts)
 --import Pages.FRP (frp)

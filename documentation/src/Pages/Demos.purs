@@ -1,30 +1,23 @@
 module Pages.Demos
   ( demos
-  ) where
+  )
+  where
 
 import Prelude
-import Contracts (Page, page, Section, section, Subsection, subsection)
-import Components.Code (psCode)
-import Components.Terminal (repl)
-import Data.Foldable (oneOf)
-import Data.List (List(..))
+
+import Contracts (Page, page, section, subsection)
 import Deku.Attribute ((!:=))
-import Deku.Attributes (href_, klass_)
+import Deku.Attributes (href_)
 import Deku.Control (text_, blank)
-import Deku.Core (Nut)
 import Deku.DOM as D
-import Pages.Zipper (zipper)
-import Router.Route (Route(..))
+import Markup.Contracts (Theorem, theorem)
+import Markup.Editor (editor)
+import Markup.Katex (defaultOptions)
+import Markup.Math (inline, display)
+import Markup.Render (renderMarkup)
 import Prism (forceHighlight)
 import QualifiedDo.Alt as Alt
-import Markup.Penrose (penroseExample, viewSources, myProgram)
-import Markup.Editor (editor)
-import Markup.Contracts (theorem)
-import Markup.Katex (defaultOptions)
-import Markup.Math (inline, display, differentialEqn, typeahead, definedIn)
-import Markup.Parser (parseMarkup)
-import Markup.Render (renderMarkup, renderTheorem)
-import Markup.Syntax (Markup(..))
+import Router.Route (Route(..))
 
 demos :: forall lock payload. Page lock payload
 demos =
@@ -103,6 +96,7 @@ demos =
         ]
     }
 
+markdownDoc :: String
 markdownDoc =
   """This part of the document is parsed. The markup format currently supports headings, lists:
 
@@ -117,6 +111,7 @@ foreign import asdf asdf
 
 """
 
+cauchyProblem :: Theorem
 cauchyProblem =
   theorem
     { title: "The Cauchy Problem of the n-dimensional Heat Equation"
@@ -124,6 +119,7 @@ cauchyProblem =
     , proof: blank
     }
 
+dAlembertFormula :: Theorem
 dAlembertFormula =
   theorem
     { title: "The D'Alembert Formula for the one dimensional Wave Equation"
@@ -131,6 +127,7 @@ dAlembertFormula =
     , proof: blank
     }
 
+liouville :: Theorem
 liouville =
   theorem
     { title: "Liouville's Theorem"
@@ -138,6 +135,7 @@ liouville =
     , proof: blank
     }
 
+comparisonPrinciple :: Theorem
 comparisonPrinciple =
   theorem
     { title: "Comparison Principle for Caloric Functions on bounded sets"
@@ -145,6 +143,7 @@ comparisonPrinciple =
     , proof: blank
     }
 
+meanValueHarmonic :: Theorem
 meanValueHarmonic =
   theorem
     { title: "The MVP for harmonic functions"

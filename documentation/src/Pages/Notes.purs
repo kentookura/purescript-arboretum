@@ -2,14 +2,8 @@ module Pages.Notes where
 
 import Prelude
 
-import Contracts (Page, page, Section, section, Subsection, subsection)
-import Deku.Control (text_)
-import Deku.DOM as D
-import Markup.Parser (parseMarkup)
-import Markup.Katex (defaultOptions)
-import Markup.Math (inline, display, editor, differentialEqn, typeahead, definedIn)
+import Contracts (Page, page, section, subsection)
 import Markup.Render (renderMarkup)
-import Pages.Demos (demos)
 import Router.Route (Route(..))
 
 --import Prism (forceHighlight)

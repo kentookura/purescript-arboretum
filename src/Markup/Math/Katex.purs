@@ -10,10 +10,6 @@ module Markup.Katex
 
 import Prelude
 import Effect (Effect)
-import Data.Set
-import Data.Maybe (Maybe)
-import Data.Nullable (Nullable, toMaybe)
-import Type.Data.Boolean (not)
 import Web.DOM (Element)
 
 data Operator

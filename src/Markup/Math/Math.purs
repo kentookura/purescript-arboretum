@@ -8,11 +8,9 @@ module Markup.Math
   , editor
   ) where
 
-import Data.Maybe
 import Prelude
 
-import Data.Foldable (for_, oneOf, oneOfMap, traverse_)
-import Data.Int (floor)
+import Data.Foldable (for_, oneOf)
 import Data.String (Pattern(..), Replacement(..), replaceAll)
 import Data.Time.Duration (Seconds(..))
 import Data.Tuple (Tuple(..))
@@ -20,25 +18,23 @@ import Data.Tuple.Nested ((/\))
 import Deku.Attribute ((!:=), (:=), cb)
 import Deku.Attributes (klass_)
 import Deku.Control (guard, text, text_, (<$~>), (<#~>))
-import Deku.Core (dyn, Nut, Domable, DOMInterpret(..))
+import Deku.Core (dyn, Nut, Domable)
 import Deku.DOM as D
 import Deku.Do as Deku
-import Deku.Hooks (useDyn, useDyn_, useState, useState', useHot')
-import Deku.Listeners (slider_, click_, click, keyUp)
-import Deku.Toplevel (runInBody)
-import Effect (Effect)
+import Deku.Hooks (useDyn, useState, useState', useHot')
+import Deku.Listeners (click_, click, keyUp)
 import Effect.Class.Console (logShow)
 import FRP.Behavior (sample_, solve2')
 import FRP.Behavior.Time (seconds)
 import FRP.Event (Event, keepLatest)
 import FRP.Event.AnimationFrame (animationFrame)
 import FRP.Event.Class ((<|*>))
-import Markup.Katex (Accent(..), KatexSettings, Operator(..), defaultOptions, toggleDisplay, viewKatex)
+import Markup.Katex (Accent, KatexSettings, Operator(..), defaultOptions, toggleDisplay, viewKatex)
 import QualifiedDo.Alt as Alt
 import Web.DOM (Element)
 import Web.Event.Event (target)
 import Web.HTML (window)
-import Web.HTML.HTMLInputElement (fromEventTarget, value, valueAsNumber)
+import Web.HTML.HTMLInputElement (fromEventTarget, value)
 import Web.HTML.Window (alert)
 import Web.UIEvent.KeyboardEvent (code, toEvent)
 

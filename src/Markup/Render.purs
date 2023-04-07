@@ -8,17 +8,15 @@ import Prelude
 import Data.Array as A
 import Data.Either (Either(..))
 import Data.List (List)
-import Data.String as S
 import Data.Foldable (foldl)
 import Markup.Syntax (Markup(..), Block(..), Inline(..), LinkTarget(..), ListType(..))
 import Markup.Parser (parseMarkup)
-import Markup.Pretty (prettyPrintMd)
 import Deku.Attributes (href)
-import Deku.Core (Nut, Domable)
+import Deku.Core (Nut)
 import Deku.Control (text_, blank)
 import Deku.DOM as D
-import Parsing (runParser, parseErrorMessage)
-import Markup.Contracts (Theorem(..), theorem)
+import Parsing (parseErrorMessage)
+import Markup.Contracts (Theorem(..))
 import Markup.Math (inline)
 import Markup.Katex (defaultOptions)
 
@@ -40,7 +38,18 @@ renderBlock :: Block -> Nut
 renderBlock =
   case _ of
     Paragraph is -> D.div_ $ A.fromFoldable (map renderInline is)
-    Header lvl is -> D.h3_ $ A.fromFoldable (map renderInline is)
+    Header lvl is -> 
+      let 
+        h  
+          | lvl == 1 = D.h1_
+          | lvl == 2 = D.h2_
+          | lvl == 3 = D.h3_
+          | lvl == 4 = D.h4_
+          | lvl == 5 = D.h5_
+          | otherwise = D.h2_
+      in
+        h $ A.fromFoldable (map renderInline is)
+
     Blockquote bs -> D.blockquote_ $ A.fromFoldable (map renderBlock bs)
     Lst listType listElems -> case listType of
       Bullet s ->
@@ -63,7 +72,7 @@ renderMarkup mkup = case parseMarkup mkup of
   Right m -> renderMarkup_ m
   Left c -> text_ $ parseErrorMessage c
 
-renderTheorem :: forall lock payload. Theorem lock payload -> Domable lock payload
+renderTheorem :: Theorem -> Nut
 renderTheorem (Theorem t) =
   D.div_
     [ D.h2_ $ [ text_ t.title ]

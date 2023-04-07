@@ -6,14 +6,12 @@ import Clipboard (copyToClipboard)
 import Control.Plus (empty)
 import Data.Foldable (oneOf)
 import Deku.Attribute (Attribute, (!:=))
-import Deku.Attributes (href_, klass_)
+import Deku.Attributes (klass_)
 import Deku.Control (text_)
 import Deku.Core (Domable)
 import Deku.DOM as D
 import Deku.Listeners (click_)
-import Effect.Random (random)
 import FRP.Event (Event)
-import QualifiedDo.Alt as Alt
 
 jsCode :: forall lock payload. String -> Domable lock payload
 jsCode code = D.pre (D.Class !:= "prism-code language-javascript")

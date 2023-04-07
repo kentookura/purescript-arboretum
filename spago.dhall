@@ -1,4 +1,4 @@
-{ name = "my-project"
+{ name = "purescript-markup"
 , dependencies =
   [ "aff"
   , "affjax"

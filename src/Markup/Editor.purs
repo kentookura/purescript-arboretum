@@ -5,39 +5,25 @@ module Markup.Editor
 
 import Prelude
 
-import Data.Either (Either(..)) as Either
-import Data.Foldable (for_)
 import Data.List (List(..), (:), snoc)
-import Data.String (take, length)
-import Data.String.Utils (lines)
-import Data.Tuple (Tuple)
 import Data.Tuple.Nested ((/\))
 import Deku.Attribute ((!:=), cb)
-import Deku.Attributes (klass_)
-import Deku.Control (blank, guard, text, text_, (<#~>))
+import Deku.Control (guard, text_, (<#~>))
 import Deku.Core (Nut)
 import Deku.DOM as D
 import Deku.Do as Deku
-import Deku.Hooks (useState, useState', useRef, useMailboxed)
-import Deku.Listeners (keyDown, textInput_)
+import Deku.Hooks (useState, useState')
+import Deku.Listeners (keyDown)
 import Deku.Toplevel (runInBody)
 import Effect (Effect)
 import Effect.Class.Console (logShow, log)
-import FRP.Event (Event)
-import Markup.Examples (raw)
 import Markup.Keyboard (Key(..), keyAction, showKeyboardEvent)
-import Markup.Parser (parseMarkup)
-import Markup.Render (renderMarkup, renderMarkup_)
-import Markup.Syntax (Markup(..), Block(..), Inline(..), pretty)
+import Markup.Render (renderMarkup_)
+import Markup.Syntax (Markup(..), Block(..), Inline(..))
 import Modal (modalClick)
 import QualifiedDo.Alt as Alt
-import Web.Event.Event (preventDefault, target)
-import Web.HTML (window)
-import Web.HTML.HTMLInputElement (fromEventTarget, value)
-import Web.HTML.Navigator (platform)
-import Web.HTML.Window (navigator)
+import Web.Event.Event (preventDefault)
 import Web.UIEvent.KeyboardEvent (toEvent, key, ctrlKey)
-import Web.UIEvent.MouseEvent (screenX, screenY)
 
 data PlatForm
   = Mac

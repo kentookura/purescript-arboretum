@@ -13,9 +13,9 @@ module Markup.Syntax
 
 import Prelude
 import Data.Array (fromFoldable)
-import Data.List (List(..), (:), length, concat)
+import Data.List (List(..), (:), concat)
 import Data.List (fromFoldable) as L
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe)
 import Data.Foldable (foldl)
 import Data.String (joinWith)
 

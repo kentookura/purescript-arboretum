@@ -5,7 +5,7 @@ import Data.Array (intercalate)
 import Data.Newtype (class Newtype)
 import Data.String (Pattern(..), split, toLower)
 import Record (union)
-import Router.Route (Route(..), routeToTitle)
+import Router.Route (Route, routeToTitle)
 import Deku.Core (Domable)
 
 newtype Env = Env

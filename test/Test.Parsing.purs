@@ -3,19 +3,13 @@ module Test.Parsing where
 import Prelude
 
 import Data.DateTime as DT
-import Data.List.Types ((:), List(..))
-import Data.Either (Either(..), isLeft)
+import Data.Either (Either, isLeft)
 import Data.Enum (toEnum)
-import Data.Maybe (Maybe(..), fromJust)
-import Data.String.Pattern (Pattern(..), Replacement(..))
-import Data.String.Common (replaceAll)
-import Data.Unfoldable (replicate)
-import Data.Foldable (intercalate)
+import Data.Maybe (fromJust)
 import Effect (Effect)
-import Effect.Class.Console (logShow, log)
 import Effect.Aff (Aff)
 import Partial.Unsafe (unsafePartial)
-import Test.Unit (suite, test, it)
+import Test.Unit (suite, it)
 import Test.Unit.Main (runTest)
 import Test.Unit.Assert (assert, assertFalse, equal)
 

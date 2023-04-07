@@ -6,10 +6,6 @@ module Router.Route
 
 import Prelude hiding ((/))
 
-import Data.Array (zip, drop)
-import Data.Maybe (Maybe(..))
-import Data.Map (Map, fromFoldable, lookup)
-import Data.Newtype (unwrap)
 import Data.Generic.Rep (class Generic)
 import Data.Show.Generic (genericShow)
 import Routing.Duplex (RouteDuplex', root)

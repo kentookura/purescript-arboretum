@@ -13,31 +13,27 @@ import Markup.Syntax
   )
 import Control.Alt ((<|>))
 import Control.Lazy as Lazy
-import Data.Array (any, cons, replicate, fromFoldable)
+import Data.Array (any)
 import Data.Array as A
-import Data.Bifunctor (lmap)
 import Data.CodePoint.Unicode (isAlphaNum)
-import Data.Foldable (foldr, foldl, length, elem, all)
-import Data.Either (Either(..), fromRight)
+import Data.Foldable (all, elem)
+import Data.Either (Either(..))
 import Data.List (List(..), toUnfoldable, (:))
 import Data.List as L
 import Data.Maybe as M
-import Data.String (trim, replace)
+import Data.String (trim)
 import Data.String as S
 import Data.String.CodeUnits (fromCharArray, singleton)
 import Data.String.CodePoints (codePointFromChar)
-import Data.String.CodePoints as CP
-import Data.String.Regex (regex, Regex, test, replace) as R
+import Data.String.Regex (replace) as R
 import Data.String.Regex.Unsafe (unsafeRegex)
 import Data.String.Regex.Flags as RF
 import Data.Traversable (traverse)
 import Partial.Unsafe (unsafePartial)
-import Parsing.Combinators (option, optionMaybe, many, many1, choice, try, manyTill, lookAhead, (<?>), skipMany1)
+import Parsing.Combinators (manyTill, option, optionMaybe, try)
 
-import Parsing.String (string, eof, char, anyChar, satisfy)
-import Parsing.String.Basic (oneOf)
-import Parsing.Token (LanguageDef, GenLanguageDef(..), letter, digit, letter)
-import Parsing (runParser, Parser, ParseError, fail, parseErrorMessage)
+import Parsing.String (string, eof, anyChar, satisfy)
+import Parsing (runParser, Parser, ParseError, fail)
 
 import Markup.Parser.References as Ref
 import Markup.Parser.Utils (isWhitespace)

@@ -11,7 +11,6 @@ import Data.Generic.Rep (class Generic)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Show.Generic (genericShow)
-import Data.Set (empty)
 import Data.Tuple (Tuple(..), curry, fst, snd, uncurry)
 import Deku.Core (envy)
 import Deku.Do as Deku
@@ -31,8 +30,6 @@ import Web.Event.Event (EventType(..))
 import Web.Event.EventTarget (addEventListener, eventListener, removeEventListener)
 import Web.HTML (window)
 import Web.HTML.Window (toEventTarget)
-import Components.Terminal (term)
-import Components.FileTree (viewNamespaceListing, testData)
 
 pixelBufferForScroll = 100.0 :: Number
 data ScrolledSection

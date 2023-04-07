@@ -2,7 +2,7 @@ module Markup.Contracts (Theorem(..), theorem) where
 
 import Prelude
 
-import Deku.Core (Domable)
+import Deku.Core (Nut)
 
 --data TheoremType 
 --  = Theorem
@@ -11,31 +11,29 @@ import Deku.Core (Domable)
 --  | Remark
 --  | Custom String
 
-newtype Theorem lock payload = Theorem
+newtype Theorem = Theorem
   { title :: String
-  , statement :: Domable lock payload
-  , proof :: Domable lock payload
+  , statement :: Nut
+  , proof :: Nut
   }
 
 theorem
-  :: forall lock payload
-   . { title :: String
-     , statement :: Domable lock payload
-     , proof :: Domable lock payload
+  :: { title :: String
+     , statement :: Nut
+     , proof :: Nut
      }
-  -> Theorem lock payload
+  -> Theorem 
 theorem i = Theorem i
 
-newtype Tooltip lock payload = Tooltip
+newtype Tooltip = Tooltip
   { title :: String
-  , matter :: Domable lock payload
+  , matter :: Nut
   }
 
 tooltip
-  :: forall lock payload
-   . { title :: String
-     , matter :: Domable lock payload
+  :: { title :: String
+     , matter :: Nut
      }
-  -> Tooltip lock payload
+  -> Tooltip 
 tooltip i = Tooltip i
 

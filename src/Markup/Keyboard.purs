@@ -65,6 +65,7 @@ instance showKey :: Show Key where
   show Yank = "Yank"
   show (Unhandled e) = "Unhandled"
 
+showKeyboardEvent ∷ KeyboardEvent → String
 showKeyboardEvent k =
   let
     isCtrl = ctrlKey k
