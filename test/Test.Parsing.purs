@@ -3,11 +3,16 @@ module Test.Parsing where
 import Prelude
 
 import Data.DateTime as DT
-import Data.Either (Either, isLeft)
+import Data.Either (Either(..), isLeft)
 import Data.Enum (toEnum)
+import Data.List (List(..), (:))
 import Data.Maybe (fromJust)
+import Data.String (replaceAll)
+import Data.String.Pattern (Pattern(..), Replacement(..))
+import Data.Unfoldable (replicate)
 import Effect (Effect)
 import Effect.Aff (Aff)
+import Effect.Class.Console (logShow)
 import Partial.Unsafe (unsafePartial)
 import Test.Unit (suite, it)
 import Test.Unit.Main (runTest)
@@ -29,7 +34,6 @@ import Markup.Parser
   ( parseMarkup
   , Container(..)
   , someOf
-  , isCodeFence
   , allChars
   , isSpace
   , tabsToSpaces
@@ -129,13 +133,12 @@ main = runTest do
       --assert "via ." $ isListItemLine "2. list item"
       --assertFalse "" $ isListItemLine "asdf"
       --assert "indented" $ isListItemLine "    - list item"
-{-
     
   suite "Obtaining Inlines" do
     it "should consolidate strings" do
       let expected = Str "Parse this string with spaces" : Nil
       equal expected (consolidate (Str "Parse" : Space : Str "this" : Space : Str "string" : Space : Str "with" : Space : Str "spaces" : Nil))
-    test "should parse paragraphs" do
+    it "should parse paragraphs" do
       let
         expected =
           ( Right
@@ -145,14 +148,14 @@ main = runTest do
           )
       equal expected (parseMarkup "Parse this Paragraph")
   suite "parsing blocks" do
-    test "should handle soft breaks" do
+    it "should handle soft breaks" do
       let softBreaks = Right (Markup (Paragraph ((Str "asdf"):SoftBreak:(Str "asdf"):Nil):Nil))
       equal softBreaks (parseMarkup (replaceAll (Pattern "x") (Replacement "asdf") """
 x
 x
 
       """))
-    test "handle multiple paragraphs" do
+    it "handle multiple paragraphs" do
       let
         threeParagraphs =
           ( Right
@@ -165,7 +168,7 @@ x
 x
 
 x"""))
-    test "Math" do
+    it "Math" do
       let
         expected =
           ( Right
@@ -175,7 +178,7 @@ x"""))
               )
           )
       equal expected (parseMarkup "$asdf$")
-    test "Emph" do
+    it "Emph" do
       let
         expected =
           ( Right
@@ -186,7 +189,7 @@ x"""))
           )
       equal expected (parseMarkup "**emphasized**")
       equal expected (parseMarkup "__emphasized__")
-    test "StrongEmph" do
+    it "StrongEmph" do
       let
         expected =
           ( Right
@@ -197,7 +200,7 @@ x"""))
           )
       equal expected (parseMarkup "***emphasized***")
       equal expected (parseMarkup "___emphasized___")
-    test "Link" do
+    it "Link" do
       let
         expected =
           ( Right
@@ -207,7 +210,7 @@ x"""))
               )
           )
       equal expected (parseMarkup "[link](http://purescript.org)")
-    test "Image" do
+    it "Image" do
       let
         expected =
           ( Right
@@ -217,7 +220,7 @@ x"""))
               )
           )
       equal expected (parseMarkup "Paragraph with an ![image](image.png)")
-    test "code" do
+    it "code" do
       let
         expected =
           ( Right
@@ -228,7 +231,7 @@ x"""))
           )
       equal expected (parseMarkup "`inline code`")
   suite "Blocks" do
-    test "Blocks" do
+    it "Blocks" do
       let blank = ( Right (Markup (Paragraph ((Str ""):Nil):Nil)))
       let header = ( Right (Markup (Header 1 (((Str ""):Nil)):Nil)))
       let block = ( Right (Markup (Blockquote (Paragraph ((Str "Here is some text":SoftBreak:(Str "inside a blockquote"):Nil)):Nil):Nil)))
@@ -260,7 +263,7 @@ let x = y in z
       """)
 
   suite "from original slamdown repo" do
-    test "" do
+    it "" do
       testDocument $ parseMarkup "Paragraph"
       testDocument $ parseMarkup "Paragraph with spaces"
       testDocument $ parseMarkup "Paragraph with an entity: &copy;"
@@ -287,7 +290,7 @@ let x = y in z
           \\n\
           \paragraphs"
 
-    test "Headers" do
+    it "Headers" do
       testDocument $
         parseMarkup
           "Header\n\
@@ -329,14 +332,14 @@ let x = y in z
           \\n\
           \Paragraph text"
 
-    test "Rule" do
+    it "Rule" do
       testDocument $
         parseMarkup
           "Rule:\n\
           \\n\
           \-----"
 
-    test "Blockquote" do
+    it "Blockquote" do
       testDocument $
         parseMarkup
           "A blockquote:\n\
@@ -351,7 +354,7 @@ let x = y in z
           \> Here is some text\n\
           \> > Here is some more text"
 
-    test "Lists" do
+    it "Lists" do
       testDocument $
         parseMarkup
           "An unordered list:\n\
@@ -374,7 +377,7 @@ let x = y in z
           \1. 1. Item 2\n\
           \   1. Item 3"
 
-    test "Code" do
+    it "Code" do
       testDocument $
         parseMarkup
           "Some indented code:\n\
@@ -469,7 +472,6 @@ let x = y in z
       --      testDocument $ parseMarkup "xeiodbdy  = [x] "
       --
       logShow "All static tests passed!"
--}
 
 unsafeDate :: Int -> Int -> Int -> DT.Date
 unsafeDate y m d = unsafePartial $ fromJust $ join $ DT.exactDate <$> toEnum y <*> toEnum m <*> toEnum d

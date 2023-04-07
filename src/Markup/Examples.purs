@@ -1,8 +1,60 @@
 module Markup.Examples
   ( raw
+  , theorems
   ) where
 
 import Prelude
+
+import Markup.Contracts (theorem, Theorem)
+import Deku.Control (blank)
+
+theorems = 
+  [ cauchyProblem
+  , dAlembertFormula
+  , liouville
+  , comparisonPrinciple
+  , meanValueHarmonic
+  ]
+
+cauchyProblem :: Theorem
+cauchyProblem =
+  theorem
+    { title: "The Cauchy Problem of the n-dimensional Heat Equation"
+    , statement: blank
+    , proof: blank
+    }
+
+dAlembertFormula :: Theorem
+dAlembertFormula =
+  theorem
+    { title: "The D'Alembert Formula for the one dimensional Wave Equation"
+    , statement: blank
+    , proof: blank
+    }
+
+liouville :: Theorem
+liouville =
+  theorem
+    { title: "Liouville's Theorem"
+    , statement: blank
+    , proof: blank
+    }
+
+comparisonPrinciple :: Theorem
+comparisonPrinciple =
+  theorem
+    { title: "Comparison Principle for Caloric Functions on bounded sets"
+    , statement: blank
+    , proof: blank
+    }
+
+meanValueHarmonic :: Theorem
+meanValueHarmonic =
+  theorem
+    { title: "The MVP for harmonic functions"
+    , statement: blank
+    , proof: blank
+    }
 
 raw =
   """# Foobar
