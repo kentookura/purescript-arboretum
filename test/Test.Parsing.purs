@@ -3,43 +3,67 @@ module Test.Parsing where
 import Prelude
 
 import Data.DateTime as DT
-import Data.Newtype (un)
-import Data.Identity as ID
 import Data.List.Types ((:), List(..))
 import Data.Either (Either(..), isLeft)
 import Data.Enum (toEnum)
-import Data.Maybe as M
-import Data.String as String
+import Data.Maybe (Maybe(..), fromJust)
+import Data.String.Pattern (Pattern(..), Replacement(..))
+import Data.String.Common (replaceAll)
+import Data.Unfoldable (replicate)
+import Data.Foldable (intercalate)
 import Effect (Effect)
-import Effect.Class.Console (log, logShow)
+import Effect.Class.Console (logShow, log)
 import Effect.Aff (Aff)
-import Effect.Class (liftEffect)
 import Partial.Unsafe (unsafePartial)
-import Test.Unit (suite, test, failure)
+import Test.Unit (suite, test, it)
 import Test.Unit.Main (runTest)
-import Test.Unit.Assert (assert, equal)
-import Markup.Examples (raw)
+import Test.Unit.Assert (assert, assertFalse, equal)
 
-import Parsing (Position(..), ParseError(..), Parser, runParser, parseErrorMessage, parseErrorPosition)
-import Parsing.String (parseErrorHuman)
+import Parsing (ParseError)
 
 import Markup.Syntax
   ( Inline(..)
   , Markup(..)
   , Block(..)
   , LinkTarget(..)
-  , class Pretty
-  , pretty
+  , ListType(..)
+  , CodeBlockType(..)
+  , consolidate
   )
 
 import Markup.Parser
-  ( inlines
-  , parseMarkup
-  , parseBlocks
-  , parseInlines
-  , parseContainers
-  , consolidate
-  , P(..)
+  ( parseMarkup
+  , Container(..)
+  , someOf
+  , isCodeFence
+  , allChars
+  , isSpace
+  , tabsToSpaces
+  , isATXHeader
+  , removeNonIndentingSpaces
+  , splitATXHeader
+  , isSetextHeader
+  , setextLevel
+  , isRule 
+  , isRuleChar
+  , isBlockquoteLine
+  , splitBlockquote
+  , isListItemLine
+  , isBulleted
+  , isOrderedListMarker
+  , splitListItem
+  , listItemIndent
+  , listItemType
+  , isIndentedChunk
+  , fromIndentedChunk
+  , splitIndentedChunks
+  , isCodeFence
+  , isEvaluatedCode
+  , isFenceChar
+  , codeFenceInfo
+  , codeFenceChar
+  , splitCodeFence
+  , isLinkReference
   )
 
 import Markup.Pretty (prettyPrintMd)
@@ -49,19 +73,11 @@ import Markup.Pretty (prettyPrintMd)
 --  where
 --    inlines = parrse
 
-
-
 testDocument :: Either ParseError Markup -> Aff Unit
 testDocument mkup = do
-  let printed = prettyPrintMd <$> mkup
-      parsed = printed >>= parseMarkup
-  --log
-  --  $ " Original:\n" 
-  --  <> show mkup 
-  --  <> "Printed:\n"  
-  --  <> show printed 
-  --  <> "Parsed:\n" 
-  --  <> show parsed
+  let
+    printed = prettyPrintMd <$> mkup
+    parsed = printed >>= parseMarkup
   equal parsed mkup
 
 failDocument :: Either String Markup -> Aff Unit
@@ -69,51 +85,186 @@ failDocument sd = assert "fails" (isLeft sd)
 
 main :: Effect Unit
 main = runTest do
+  suite "low level components" do
+    it "should get list types" do
+      equal (listItemType "1. My List Item") (Ordered ".")
+      equal (listItemType "* My List Item") (Bullet "*")
+      equal (listItemType "* My List Item") (Bullet "*")
+    it "should match codefences" do
+      assert "`isCodeFence` didn't match triple backticks" (isCodeFence "``` asdfsadfa")
+      assertFalse "`isCodeFence` matched backtickless string" (isCodeFence "asdfsadfa")
+    it "should count header depth" do
+      assert "" (isATXHeader "# Title 1 ")
+      assertFalse "" (isATXHeader "####### Too Deep")
+    it "should remove non indenting spaces" do
+      let s = "Three spaces gets removed"
+          t = "    Four spaces aren't removed"
+      equal (removeNonIndentingSpaces "   " <> s) s
+      equal (removeNonIndentingSpaces t) t
+    it "should split headers and determine depth" do
+      let h1 = "# asdfsadf"
+          h2 = "## asdfsadf"
+          h3 = "### asdfsadf"
+      equal (_.contents $ splitATXHeader h1) "asdfsadf"
+      equal (_.contents $ splitATXHeader h2) "asdfsadf"
+      equal (_.contents $ splitATXHeader h3) "asdfsadf"
+      equal (_.level $ splitATXHeader h1) 1
+      equal (_.level $ splitATXHeader h2) 2
+      equal (_.level $ splitATXHeader h3) 3
+    {-
+    it "what are ext headers here?" do
+      assert "" (isSetextHeader "==" (Just (CText "content ==")))
+      assert "" (isSetextHeader "--" (Just (CText "content ==")))
+      assert "" (isSetextHeader "--" (Just (CText "= content")))
+      assert "" (isSetextHeader "" (Just (CText "asdfinapawj")))
+    -}
+    it "should match rules" do
+      assert "" (isRule "******")
+      assert "" (isRule "---")
+      assertFalse "" (isRule "---x")
+      assertFalse "" (isRule "--x")
+    it "should split blockquotes" do
+      pure unit
+      -- (_.blockquoteLines <<< splitBlockquote) $ replicate 3 "> Block quote!\n"
+    it "should recognize lists" do
+      assert "via *" $ isListItemLine "* list item"
+      assert "via +" $ isListItemLine "+ list item"
+      assert "via -" $ isListItemLine "- list item"
+      assert "ordered list" $ isOrderedListMarker "1)"
+      --assert "via )" $ isListItemLine "1 ) list item"
+      --assert "via ." $ isListItemLine "2. list item"
+      --assertFalse "" $ isListItemLine "asdf"
+      --assert "indented" $ isListItemLine "    - list item"
+{-
+    
   suite "Obtaining Inlines" do
-    test "consolidate" do
+    it "should consolidate strings" do
       let expected = Str "Parse this string with spaces" : Nil
       equal expected (consolidate (Str "Parse" : Space : Str "this" : Space : Str "string" : Space : Str "with" : Space : Str "spaces" : Nil))
-    test "Paragraph" do
-      let expected = (Right 
-          (Markup 
-            (Paragraph ((Str "Parse this Paragraph"):Nil):Nil)
+    test "should parse paragraphs" do
+      let
+        expected =
+          ( Right
+              ( Markup
+                  (Paragraph ((Str "Parse this Paragraph") : Nil) : Nil)
+              )
           )
-        ) 
-      equal expected (parseMarkup "Parse this Paragraph") 
+      equal expected (parseMarkup "Parse this Paragraph")
+  suite "parsing blocks" do
+    test "should handle soft breaks" do
+      let softBreaks = Right (Markup (Paragraph ((Str "asdf"):SoftBreak:(Str "asdf"):Nil):Nil))
+      equal softBreaks (parseMarkup (replaceAll (Pattern "x") (Replacement "asdf") """
+x
+x
+
+      """))
+    test "handle multiple paragraphs" do
+      let
+        threeParagraphs =
+          ( Right
+            (Markup (replicate 3 (Paragraph ((Str lorem):Nil)))
+            )
+          )
+      equal threeParagraphs (parseMarkup (replaceAll (Pattern "x") (Replacement lorem) """
+x
+
+x
+
+x"""))
     test "Math" do
-      let expected = (Right 
-          (Markup 
-            (Paragraph (Math ("asdf"):Nil):Nil
-            )
+      let
+        expected =
+          ( Right
+              ( Markup
+                  ( Paragraph (Math ("asdf") : Nil) : Nil
+                  )
+              )
           )
-        ) 
-      equal expected (parseMarkup "$asdf$") 
+      equal expected (parseMarkup "$asdf$")
     test "Emph" do
-      let expected = (Right 
-          (Markup 
-            (Paragraph (Strong ((Str "emphasized"):Nil):Nil):Nil
-            )
+      let
+        expected =
+          ( Right
+              ( Markup
+                  ( Paragraph (Strong ((Str "emphasized") : Nil) : Nil) : Nil
+                  )
+              )
           )
-        ) 
-      equal expected (parseMarkup "**emphasized**") 
-      equal expected (parseMarkup "__emphasized__") 
+      equal expected (parseMarkup "**emphasized**")
+      equal expected (parseMarkup "__emphasized__")
     test "StrongEmph" do
-      let expected = (Right 
-          (Markup 
-            (Paragraph (Strong (Emph ((Str "emphasized"):Nil):Nil):Nil):Nil
-            )
+      let
+        expected =
+          ( Right
+              ( Markup
+                  ( Paragraph (Strong (Emph ((Str "emphasized") : Nil) : Nil) : Nil) : Nil
+                  )
+              )
           )
-        ) 
-      equal expected (parseMarkup "***emphasized***") 
-      equal expected (parseMarkup "___emphasized___") 
+      equal expected (parseMarkup "***emphasized***")
+      equal expected (parseMarkup "___emphasized___")
     test "Link" do
-      let expected = (Right 
-          (Markup 
-            (Paragraph ((Link ((Str "link"):Nil)) (InlineLink "http://purescript.org"):Nil):Nil
-            )
+      let
+        expected =
+          ( Right
+              ( Markup
+                  ( Paragraph ((Link ((Str "link") : Nil)) (InlineLink "http://purescript.org") : Nil) : Nil
+                  )
+              )
           )
-        ) 
       equal expected (parseMarkup "[link](http://purescript.org)")
+    test "Image" do
+      let
+        expected =
+          ( Right
+              ( Markup
+                  ( Paragraph ((Str "Paragraph with an "):(Link (Str "image":Nil)) (InlineLink "image.png"):Nil):Nil
+                  )
+              )
+          )
+      equal expected (parseMarkup "Paragraph with an ![image](image.png)")
+    test "code" do
+      let
+        expected =
+          ( Right
+              ( Markup
+                  ( Paragraph ((Code false "inline code"):Nil):Nil
+                  )
+              )
+          )
+      equal expected (parseMarkup "`inline code`")
+  suite "Blocks" do
+    test "Blocks" do
+      let blank = ( Right (Markup (Paragraph ((Str ""):Nil):Nil)))
+      let header = ( Right (Markup (Header 1 (((Str ""):Nil)):Nil)))
+      let block = ( Right (Markup (Blockquote (Paragraph ((Str "Here is some text":SoftBreak:(Str "inside a blockquote"):Nil)):Nil):Nil)))
+      let bullet = ( Right (Markup (Lst (Bullet "*") ((Paragraph ((Str "example"):Nil):Nil):Nil):Nil)))
+      let ordered = ( Right (Markup (Lst (Ordered ".") ((Paragraph ((Str ""):Nil):Nil):Nil):Nil)))
+      let codeBlock = (Right (Markup (CodeBlock Indented ("":Nil):Nil)))
+      equal block (parseMarkup """
+> Here is some text
+> inside a blockquote
+      """)
+      equal bullet (parseMarkup """
+* example
+      """)
+--      equal ordered (parseMarkup """
+--1. bulleted
+--2. list
+--3. example
+      --""")
+      equal codeBlock (parseMarkup """
+```
+codeblock
+
+import asdf
+
+let x = y in z
+```
+      """)
+      equal header (parseMarkup """
+      """)
+
   suite "from original slamdown repo" do
     test "" do
       testDocument $ parseMarkup "Paragraph"
@@ -294,39 +445,43 @@ main = runTest do
       --          }  sd
       --    a -> a
 
---      testDocument $ parseMarkup "name = __ (Phil Freeman)"
---      testDocument $ parseMarkup "name = __ (!`name`)"
---      testDocument $ parseMarkup "sex* = (x) male () female () other"
---      testDocument $ parseMarkup "sex* = (!`def`) !`others`"
---      testDocument $ parseMarkup "city = {BOS, SFO, NYC} (NYC)"
---      testDocument $ parseMarkup "city = {!`...`} (!`...`)"
---      testDocument $ parseMarkup "phones = [] Android [x] iPhone [x] Blackberry"
---      testDocument $ parseMarkup "phones = [!`...`] !`...`"
---      testDocument $ parseMarkup "start = __ - __ - ____ (06-06-2015)"
---      testDocument $ parseMarkup "start = __ - __ - ____ (!`...`)"
---      testDocument $ parseMarkup "start = __ : __ (10:32 PM)"
---      failDocument $ parseMarkup "start = __ : __ (10:32:46 PM)"
---      failDocument $ parseMarkup "start = __ : __ : __ (10:32 PM)"
---      testDocument $ parseMarkup "start = __ : __ : __ (10:32:46 PM)"
---      testDocument $ parseMarkup "start = __ : __ (!`...`)"
---      testDocument $ parseMarkup "start = __-__-____ __:__ (06-06-2015 12:00 PM)"
---      testDocument $ parseMarkup "start = __ - __ - ____ __ : __ (!`...`)"
---      testDocument $ parseMarkup "[zip code]* = __ (12345)"
---      testDocument $ parseMarkup "defaultless = __"
---      testDocument $ parseMarkup "city = {BOS, SFO, NYC}"
---      testDocument $ parseMarkup "start = __ - __ - ____"
---      testDocument $ parseMarkup "start = __ : __"
---      testDocument $ parseMarkup "start = __ : __ : __"
---      testDocument $ parseMarkup "start = __ - __ - ____ __ : __ : __"
---      testDocument $ parseMarkup "zip* = ________"
---      testDocument $ parseMarkup "[numeric field] = #______ (23)"
---      testDocument $ parseMarkup "i9a0qvg8* = ______ (9a0qvg8h)"
---      testDocument $ parseMarkup "xeiodbdy  = [x] "
---
+      --      testDocument $ parseMarkup "name = __ (Phil Freeman)"
+      --      testDocument $ parseMarkup "name = __ (!`name`)"
+      --      testDocument $ parseMarkup "sex* = (x) male () female () other"
+      --      testDocument $ parseMarkup "sex* = (!`def`) !`others`"
+      --      testDocument $ parseMarkup "city = {BOS, SFO, NYC} (NYC)"
+      --      testDocument $ parseMarkup "city = {!`...`} (!`...`)"
+      --      testDocument $ parseMarkup "phones = [] Android [x] iPhone [x] Blackberry"
+      --      testDocument $ parseMarkup "phones = [!`...`] !`...`"
+      --      testDocument $ parseMarkup "start = __ - __ - ____ (06-06-2015)"
+      --      testDocument $ parseMarkup "start = __ - __ - ____ (!`...`)"
+      --      testDocument $ parseMarkup "start = __ : __ (10:32 PM)"
+      --      failDocument $ parseMarkup "start = __ : __ (10:32:46 PM)"
+      --      failDocument $ parseMarkup "start = __ : __ : __ (10:32 PM)"
+      --      testDocument $ parseMarkup "start = __ : __ : __ (10:32:46 PM)"
+      --      testDocument $ parseMarkup "start = __ : __ (!`...`)"
+      --      testDocument $ parseMarkup "start = __-__-____ __:__ (06-06-2015 12:00 PM)"
+      --      testDocument $ parseMarkup "start = __ - __ - ____ __ : __ (!`...`)"
+      --      testDocument $ parseMarkup "[zip code]* = __ (12345)"
+      --      testDocument $ parseMarkup "defaultless = __"
+      --      testDocument $ parseMarkup "city = {BOS, SFO, NYC}"
+      --      testDocument $ parseMarkup "start = __ - __ - ____"
+      --      testDocument $ parseMarkup "start = __ : __"
+      --      testDocument $ parseMarkup "start = __ : __ : __"
+      --      testDocument $ parseMarkup "start = __ - __ - ____ __ : __ : __"
+      --      testDocument $ parseMarkup "zip* = ________"
+      --      testDocument $ parseMarkup "[numeric field] = #______ (23)"
+      --      testDocument $ parseMarkup "i9a0qvg8* = ______ (9a0qvg8h)"
+      --      testDocument $ parseMarkup "xeiodbdy  = [x] "
+      --
       logShow "All static tests passed!"
+-}
 
 unsafeDate :: Int -> Int -> Int -> DT.Date
-unsafeDate y m d = unsafePartial $ M.fromJust $ join $ DT.exactDate <$> toEnum y <*> toEnum m <*> toEnum d
+unsafeDate y m d = unsafePartial $ fromJust $ join $ DT.exactDate <$> toEnum y <*> toEnum m <*> toEnum d
 
 unsafeTime :: Int -> Int -> Int -> DT.Time
-unsafeTime h m s = unsafePartial $ M.fromJust $ DT.Time <$> toEnum h <*> toEnum m <*> toEnum s <*> toEnum bottom
+unsafeTime h m s = unsafePartial $ fromJust $ DT.Time <$> toEnum h <*> toEnum m <*> toEnum s <*> toEnum bottom
+
+lorem :: String
+lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."

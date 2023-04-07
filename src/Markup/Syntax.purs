@@ -8,11 +8,13 @@ module Markup.Syntax
   , class Pretty
   , pretty
   , syntaxExample
+  , consolidate
   ) where
 
 import Prelude
 import Data.Array (fromFoldable)
 import Data.List (List(..), (:), length, concat)
+import Data.List (fromFoldable) as L
 import Data.Maybe (Maybe(..))
 import Data.Foldable (foldl)
 import Data.String (joinWith)
@@ -28,24 +30,15 @@ data Inline
   | Code Boolean String
   | Link (List Inline) LinkTarget
 
+newtype Inlines = Many (List Inline)
 
-data InlineContext 
+data InlineContext
   = Root
-  | StringContext { before :: String, after:: String}
-  | EmphContext { before :: List InlineContext, after :: List InlineContext}
-  | StrongContext { before :: List InlineContext, after :: List InlineContext}
-  | CodeContext { before :: String, after:: String}
+  | StringContext { before :: String, after :: String }
+  | EmphContext { before :: List InlineContext, after :: List InlineContext }
+  | StrongContext { before :: List InlineContext, after :: List InlineContext }
+  | CodeContext { before :: String, after :: String }
   | LinkContext
-
---fromZipper :: { filler :: Inline, context :: InlineContext} -> Inline
---fromZipper {filler, context} = case context of
-  --Root -> filler
-  --StringContext {before, after} -> fromZipper {filler: Str (before <> after), context: context}
-  --EmphContext { before, after} -> _
-  --StrongContext { before, after} -> fromZipper { filler: Strong (before <> after), context: context}
-  --CodeContext { before, after} -> fromZipper { filler: Code true (before <> after), context: context}
-  --Link -> {filler, context}
-
 
 data Block
   = Paragraph (List Inline)
@@ -78,13 +71,28 @@ derive instance eqLinkTarget :: Eq LinkTarget
 derive instance eqMarkup :: Eq Markup
 
 instance semigroupMarkup :: Semigroup Markup where
-  append (Markup bs) (Markup ds) = Markup (concat (bs:ds:Nil))
+  append (Markup bs) (Markup ds) = Markup (concat (bs : ds : Nil))
+
+consolidate :: List Inline -> List Inline
+consolidate =
+  case _ of
+    Nil -> Nil
+    (Str s1) : (Str s2 : is) ->
+      consolidate $ Cons (Str (s1 <> s2)) is
+    (Str s) : (Space : is) ->
+      consolidate $ Cons (Str (s <> " ")) is
+    i : is -> Cons i $ consolidate is
+
+instance semigroupInline :: Semigroup Inlines where
+  append (Many is) (Many js) = Many (consolidate $ concat $ L.fromFoldable [is, js])
 
 instance showMarkup :: Show Markup where
   show (Markup bs) = "(Markup " <> show bs <> ")"
 
-instance prettyMarkup :: Pretty Markup where
-  pretty (Markup m) = joinWith "\n" $ map pretty (fromFoldable m)
+instance prettyMarkup :: Pretty LinkTarget where
+  pretty (InlineLink s) = s
+  pretty (ReferenceLink s) = show s
+
 
 class Pretty a where
   pretty :: a -> String
@@ -99,15 +107,18 @@ instance prettyInline :: Pretty Inline where
     Strong is -> wrap "**" is
     Code _ b -> b
     Math s -> "$" <> s <> "$"
-    Link _ _ -> ""
-    where wrap s i = s <> (joinWith "" $ (map pretty (fromFoldable i))) <> s
+    Link is t -> wrap_ "[" "]" is <> pretty t
+    where
+    wrap s i = s <> (joinWith "" $ (map pretty (fromFoldable i))) <> s
+    wrap_ o c i = o <> (joinWith "" $ (map pretty (fromFoldable i))) <> c
 
 instance prettyBlock :: Pretty Block where
   pretty b = go b 0
     where
     go :: Block -> Int -> String
     go b i = case b of
-      Paragraph is -> """Paragraph
+      Paragraph is ->
+        """Paragraph
       """ <> foldl append mempty (map pretty is)
       Header lvl is ->
         "Header (level "
@@ -152,6 +163,5 @@ instance showLinkTarget :: Show LinkTarget where
   show (InlineLink uri) = "(InlineLink " <> show uri <> ")"
   show (ReferenceLink tgt) = "(ReferenceLink " <> show tgt <> ")"
 
-
 syntaxExample :: Markup
-syntaxExample = Markup (Header 1 (Str "Parse" : Space : Str "this" : Space : Str "Header!" : Nil):Nil)
+syntaxExample = Markup (Header 1 (Str "Parse" : Space : Str "this" : Space : Str "Header!" : Nil) : Nil)
