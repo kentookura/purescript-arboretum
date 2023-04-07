@@ -10,9 +10,10 @@ import Data.Either (Either(..))
 import Data.List (List)
 import Data.String as S
 import Data.Foldable (foldl)
-import Markup.Syntax (Markup(..), Block(..), Inline(..), ListType(..))
+import Markup.Syntax (Markup(..), Block(..), Inline(..), LinkTarget(..), ListType(..))
 import Markup.Parser (parseMarkup)
 import Markup.Pretty (prettyPrintMd)
+import Deku.Attributes (href)
 import Deku.Core (Nut, Domable)
 import Deku.Control (text_, blank)
 import Deku.DOM as D
@@ -31,7 +32,8 @@ renderInline =
     Emph is -> D.i_ $ A.fromFoldable (map renderInline is)
     Strong is -> D.strong_ $ A.fromFoldable (map renderInline is)
     Code bool str -> D.code_ [ text_ str ]
-    Link is tgt -> D.a_ $ A.fromFoldable (map renderInline is)
+    Link is (InlineLink tgt) -> D.a (href (pure tgt)) $ A.fromFoldable (map renderInline is)
+    Link is (ReferenceLink tgt) -> D.a_ $ A.fromFoldable (map renderInline is)
     Math s -> inline defaultOptions s
 
 renderBlock :: Block -> Nut
