@@ -22,7 +22,7 @@ theorem
      , statement :: Nut
      , proof :: Nut
      }
-  -> Theorem 
+  -> Theorem
 theorem i = Theorem i
 
 newtype Tooltip = Tooltip
@@ -34,6 +34,6 @@ tooltip
   :: { title :: String
      , matter :: Nut
      }
-  -> Tooltip 
+  -> Tooltip
 tooltip i = Tooltip i
 

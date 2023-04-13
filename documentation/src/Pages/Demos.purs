@@ -1,7 +1,6 @@
 module Pages.Demos
   ( demos
-  )
-  where
+  ) where
 
 import Prelude
 

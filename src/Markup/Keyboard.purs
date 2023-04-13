@@ -65,7 +65,7 @@ instance showKey :: Show Key where
   show Yank = "Yank"
   show (Unhandled e) = "Unhandled"
 
-showKeyboardEvent ∷ KeyboardEvent → String
+showKeyboardEvent :: KeyboardEvent -> String
 showKeyboardEvent k =
   let
     isCtrl = ctrlKey k
@@ -114,7 +114,7 @@ keyAction e =
       | (key e == "") = GoToStartOfWord
       | (key e == "") = GoToEndOfWord
       | (key e == "") = CapsLock -- TODO
-      | (key e == "") = Backspace
+      | (key e == "Backspace") = Backspace
       | otherwise = Unhandled e
   in
     k

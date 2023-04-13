@@ -9,16 +9,21 @@ import Data.Array as A
 import Data.Either (Either(..))
 import Data.List (List)
 import Data.Foldable (foldl)
+import Data.Tuple.Nested ((/\))
 import Markup.Syntax (Markup(..), Block(..), Inline(..), LinkTarget(..), ListType(..))
 import Markup.Parser (parseMarkup)
-import Deku.Attributes (href)
+import Deku.Attributes (href, klass_)
 import Deku.Core (Nut)
-import Deku.Control (text_, blank)
+import Deku.Control (text_, blank, guard, (<#~>))
+import Deku.Do as Deku
 import Deku.DOM as D
+import Deku.Hooks (useState)
+import Deku.Listeners (click)
 import Parsing (parseErrorMessage)
 import Markup.Contracts (Theorem(..))
 import Markup.Math (inline)
 import Markup.Katex (defaultOptions)
+import QualifiedDo.Alt as Alt
 
 renderInline :: Inline -> Nut
 renderInline =
@@ -38,9 +43,9 @@ renderBlock :: Block -> Nut
 renderBlock =
   case _ of
     Paragraph is -> D.div_ $ A.fromFoldable (map renderInline is)
-    Header lvl is -> 
-      let 
-        h  
+    Header lvl is ->
+      let
+        h
           | lvl == 1 = D.h1_
           | lvl == 2 = D.h2_
           | lvl == 3 = D.h3_
@@ -72,10 +77,22 @@ renderMarkup mkup = case parseMarkup mkup of
   Right m -> renderMarkup_ m
   Left c -> text_ $ parseErrorMessage c
 
-renderTheorem :: Theorem -> Nut
-renderTheorem (Theorem t) =
+renderTheorem :: forall r. { title :: String, statement :: Nut, proof :: Nut | r } -> Nut
+renderTheorem t = Deku.do
+  setVisible /\ visible <- useState false
   D.div_
     [ D.h2_ $ [ text_ t.title ]
     , t.statement
-    , t.proof
+    , D.a
+        Alt.do
+          klass_ "cursor-pointer"
+          click $ visible <#> not >>> setVisible
+        [ text_ "toggle theorem" ]
+    , D.div_
+        [ visible <#~>
+            if _ then
+              t.proof
+            else
+              blank
+        ]
     ]
