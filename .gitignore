@@ -12,6 +12,8 @@ result
 backend
 src/Markup/Penrose/Examples
 .vscode
+src/Sketches.purs
 
 # Local Netlify folder
 .netlify
+

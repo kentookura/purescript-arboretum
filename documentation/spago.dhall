@@ -51,7 +51,6 @@ to generate this file without the comments in this block.
   , "refs"
   , "routing"
   , "routing-duplex"
-  , "scribblet"
   , "strings"
   , "test-unit"
   , "transformers"
@@ -64,6 +63,7 @@ to generate this file without the comments in this block.
   , "web-html"
   , "web-uievents"
   , "yoga-json"
+  , "markup"
   ]
 , packages = ../packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

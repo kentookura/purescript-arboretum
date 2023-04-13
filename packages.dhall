@@ -1,6 +1,6 @@
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.7-20230319/packages.dhall
-        sha256:63aa81db076458010149c90a978717abe63d72455fecfee0397d93f9ff6ea077
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.7-20230408/packages.dhall
+        sha256:eafb4e5bcbc2de6172e9457f321764567b33bc7279bd6952468d0d422aa33948
 
 in  upstream
   with markup = ./spago.dhall as Location
