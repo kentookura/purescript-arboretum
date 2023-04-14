@@ -5,19 +5,25 @@ module Markup.Editor
 
 import Prelude
 
+import Data.Array (reverse)
 import Data.List (List(..), (:), snoc)
+import Data.Search.Trie (fromFoldable)
+import Data.String (codePointFromChar, take)
+import Data.String.CodeUnits (toCharArray, fromCharArray)
+import Data.Tuple (Tuple(..), fst, snd)
 import Data.Tuple.Nested ((/\))
-import Data.String (length, take)
 import Deku.Attribute ((!:=), cb)
+import Deku.Attributes (klass_)
 import Deku.Control (guard, text, text_, (<#~>))
 import Deku.Core (Nut)
 import Deku.DOM as D
 import Deku.Do as Deku
 import Deku.Hooks (useRef, useState, useState')
-import Deku.Listeners (keyDown)
+import Deku.Listeners (keyDown, keyDown_)
 import Deku.Toplevel (runInBody)
 import Effect (Effect)
 import Effect.Class.Console (logShow, log)
+import FRP.Event.Keyboard (Keyboard)
 import Markup.Examples (theorems)
 import Markup.Keyboard (Key(..), keyAction, showKeyboardEvent)
 import Markup.Render (renderMarkup_, renderTheorem)
@@ -25,109 +31,35 @@ import Markup.Syntax (Markup(..), Block(..), Inline(..))
 import Modal (modalClick)
 import QualifiedDo.Alt as Alt
 import Web.Event.Event (preventDefault)
-import Web.UIEvent.KeyboardEvent (toEvent, key, ctrlKey)
-
-data PlatForm
-  = Mac
-  | Linux
-  | Windows
-  | UnknownPlatform
-
-edit :: Key -> Markup -> Markup
-edit key (Markup m) = case key of
-  Enter -> Markup (snoc m (Paragraph (Str "Appended via Edit" : Nil)))
-  SpaceKey -> Markup (snoc m (Paragraph (Str " " : Nil)))
-  _ -> Markup m
-
-data Focus
-  = Command
-  | AutoComplete
-  | Editor
-
-data EditorState
-  = AwaitBlockType
-  | AwaitChars
+import Web.Event.Internal.Types (Event)
+import Web.UIEvent.KeyboardEvent (KeyboardEvent, ctrlKey, key, toEvent)
+import Zipper.String (StringZipper, handleKeys)
 
 editor :: Nut
 editor = Deku.do
-  setString /\ string <- useState ""
-  stringRef <- useRef "" string
-  setMarkup /\ markup <- useState'
-  setState /\ editorState <- useState AwaitChars
-  setPalette /\ paletteOpen <- useState false
+  let initial = ("olleH" /\ " World!")
+  setZipper /\ zipper <- useState initial
   D.div_
     [ D.pre
         ( Alt.do
+            D.Class !:= "editor"
             D.Contenteditable !:= "true"
             D.OnAuxclick !:= cb \e -> do
               preventDefault e
               log "TODO: Wire up context menu"
-            keyDown $ editorState <#>
-              ( \currentState -> case currentState of
-                  AwaitBlockType -> \event -> do
-                    pure unit
-                  AwaitChars ->
-                    \event ->
-                      let
-                        def :: Effect Unit
-                        def = do
-                          preventDefault $ toEvent event
-                      in
-                        case keyAction event of
-                          Enter -> def
-                          SpaceKey -> def
-                          Left -> def
-                          Right -> def
-                          Up -> def
-                          Down -> def
-                          Shift -> def
-                          Control -> def
-                          Alt -> def
-                          Tab -> def
-                          ShiftTab -> def
-                          CapsLock -> def
-                          ShiftEnter -> def
-                          PageUp -> def
-                          PageDown -> def
-                          GoToStartOfLine -> def
-                          GoToEndOfLine -> def
-                          GoToStartOfWord -> def
-                          GoToEndOfWord -> def
-                          Undo -> def
-                          Redo -> def
-                          SelectAll -> def
-                          Backspace -> do
-                            currentString <- stringRef
-                            setString (take ((length currentString) - 1) currentString)
-                          Copy -> def
-                          Paste -> def
-                          Save -> def
-                          Yank -> def
-                          Escape -> do
-                            setPalette false
-                          Unhandled e ->
-                            let
-                              k
-                                | (key e == "p" && ctrlKey e) = do
-                                    preventDefault (toEvent e)
-                                    logShow $ showKeyboardEvent e
-                                    setPalette true
-                                    modalClick (setPalette false)
-                                | otherwise = do 
-                                    currentString <- stringRef
-                                    preventDefault (toEvent e)
-                                    setString (currentString <> key e)
-                            in
-                              k
-              )
+            keyDown $ zipper <#>
+              ( \z -> \event -> do
+                preventDefault $ toEvent event
+                logShow $ keyAction event
+                setZipper (handleKeys (keyAction event) z))
         )
-        [ text string
-          --markup <#~> renderMarkup_
+        [ text $ zipper <#> (fst >>> toCharArray >>> reverse >>> fromCharArray)
+        , D.div (D.Id !:= "fake-caret") []
+        , text $ zipper <#> (snd)
         ]
     , D.div_
-        [ text_ "Debug: "
+        [ text $ zipper <#> show
         ]
-    , guard paletteOpen (text_ "command palette")
     ]
 
 main :: Effect Unit

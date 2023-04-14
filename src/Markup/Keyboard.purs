@@ -1,6 +1,17 @@
-module Markup.Keyboard where
+module Markup.Keyboard
+  ( Key(..)
+  , showKeyboardEvent
+  , keyAction
+  )
+  where
 
+import Effect
 import Prelude
+
+import Control.Monad.State (State, runState, modify, modify_)
+import Data.Array (reverse)
+import Data.String.CodeUnits (toCharArray, fromCharArray)
+import Effect.Console (log)
 import Web.UIEvent.KeyboardEvent (toEvent, KeyboardEvent, key, code, shiftKey, ctrlKey)
 
 data Key
@@ -63,15 +74,11 @@ instance showKey :: Show Key where
   show Paste = "Paste"
   show Save = "Save"
   show Yank = "Yank"
-  show (Unhandled e) = "Unhandled"
+  show (Unhandled e) = "(Unhandled" <> showKeyboardEvent e <> ")"
 
 showKeyboardEvent :: KeyboardEvent -> String
 showKeyboardEvent k =
-  let
-    isCtrl = ctrlKey k
-    isShift = shiftKey k
-  in
-    "{ " <> key k <> ", ctrlKey: " <> show isCtrl <> ", isShift: " <> show isShift <> "}"
+  show { key: key k, isShift: shiftKey k, isCtrl: ctrlKey k }
 
 keyAction :: KeyboardEvent -> Key
 keyAction e =
@@ -79,8 +86,6 @@ keyAction e =
     isShift = shiftKey e
     isCtrl = ctrlKey e
     k
-      | (key e == "backspace") = Backspace
-      | (key e == "Enter") = Enter
       | isCtrl || (isShift && isCtrl) =
           let
             k2
@@ -94,6 +99,8 @@ keyAction e =
               | otherwise = Unhandled e
           in
             k2
+      | (key e == "backspace") = Backspace
+      | (key e == "Enter") = Enter
       | (key e == "Tab" && isShift) = ShiftTab
       | (key e == "Enter" && isShift) = ShiftEnter
       | (code e == "Space") = SpaceKey
@@ -109,8 +116,8 @@ keyAction e =
       | (key e == "Enter") = Enter
       | (key e == "PageUp") = PageUp
       | (key e == "") = PageDown
-      | (key e == "") = GoToStartOfLine
-      | (key e == "") = GoToEndOfLine
+      | (key e == "Home") = GoToStartOfLine
+      | (key e == "End") = GoToEndOfLine
       | (key e == "") = GoToStartOfWord
       | (key e == "") = GoToEndOfWord
       | (key e == "") = CapsLock -- TODO

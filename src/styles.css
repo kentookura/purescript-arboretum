@@ -1,0 +1,11 @@
+#fake-caret {
+  height: 1em;
+  width: 2px;
+  background-color: black;
+}
+
+.editor {
+  display: flex;
+  flex-direction: row;
+  caret-color: transparent;
+}
