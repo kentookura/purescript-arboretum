@@ -6,7 +6,6 @@ import Prelude
 
 import Data.Array (reverse)
 import Data.List (List(..), (:), snoc)
-import Data.Search.Trie (fromFoldable)
 import Data.String (codePointFromChar, take)
 import Data.String.CodeUnits (toCharArray, fromCharArray)
 import Data.Tuple.Nested ((/\))

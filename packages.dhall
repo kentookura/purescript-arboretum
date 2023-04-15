@@ -4,4 +4,4 @@ let upstream =
 
 in  upstream
   with markup = ./spago.dhall as Location
-  with search-trie = ./purescript-search-trie/spago.dhall as Location
+  --with search-trie = ./purescript-search-trie/spago.dhall as Location
