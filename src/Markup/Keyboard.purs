@@ -2,8 +2,7 @@ module Markup.Keyboard
   ( Key(..)
   , showKeyboardEvent
   , keyAction
-  )
-  where
+  ) where
 
 import Effect
 import Prelude

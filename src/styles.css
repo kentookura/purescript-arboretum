@@ -5,7 +5,10 @@
 }
 
 .editor {
-  display: flex;
-  flex-direction: row;
   caret-color: transparent;
+}
+
+.zipper-view {
+  flex-direction: row;
+  display: flex;
 }
