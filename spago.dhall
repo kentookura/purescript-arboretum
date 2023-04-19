@@ -28,6 +28,7 @@
   , "refs"
   , "strings"
   , "test-unit"
+  , "transformers"
   , "tuples"
   , "unfoldable"
   , "unicode"
@@ -35,8 +36,6 @@
   , "web-events"
   , "web-html"
   , "web-uievents"
-  , "transformers"
-  --, "search-trie"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
