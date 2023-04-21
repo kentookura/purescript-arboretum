@@ -18,7 +18,7 @@ import Data.Tuple.Nested ((/\))
 import Deku.Attribute ((!:=), (:=), cb)
 import Deku.Attributes (klass_)
 import Deku.Control (guard, text, text_, (<$~>), (<#~>))
-import Deku.Core (dyn, Nut, Domable)
+import Deku.Core (dyn, Nut) 
 import Deku.DOM as D
 import Deku.Do as Deku
 import Deku.Hooks (useDyn, useState, useState', useHot')
@@ -76,20 +76,20 @@ typeahead = Deku.do
     top =
       D.div_
         [ D.input
-            Alt.do
-              D.Value !:= "Tasko primo"
-              keyUp $ pure \evt -> do
+            [ D.Value !:= "Tasko primo"
+            , keyUp $ pure \evt -> do
                 when (code evt == "Enter") $
                   for_
                     ((target >=> fromEventTarget) (toEvent evt))
                     guardAgainstEmpty
-              D.SelfT !:= setInput
-              klass_ inputKls
+            , D.SelfT !:= setInput
+            , klass_ inputKls
+            ]
             []
         , D.button
-            Alt.do
-              click $ input <#> guardAgainstEmpty
-              klass_ $ completionItem "green"
+            [ click $ input <#> guardAgainstEmpty
+            , klass_ $ completionItem "green"
+            ]
             [ text_ "Add" ]
         ]
   D.div_
@@ -101,14 +101,14 @@ typeahead = Deku.do
                 D.div_
                   [ text_ t
                   , D.button
-                      Alt.do
-                        klass_ $ "ml-2 " <> completionItem "indigo"
-                        click_ (sendTo 0)
+                      [ klass_ $ "ml-2 " <> completionItem "indigo"
+                      , click_ (sendTo 0)
+                      ]
                       [ text_ "Prioritize" ]
                   , D.button
-                      Alt.do
-                        klass_ $ "ml-2 " <> completionItem "pink"
-                        click_ remove
+                      [ klass_ $ "ml-2 " <> completionItem "pink"
+                      , click_ remove
+                      ]
                       [ text_ "Delete" ]
                   ]
             )
@@ -151,18 +151,18 @@ editor =
     D.div_
       [ render { config, katex: math }
       , D.button
-          Alt.do
-            click $ config <#> toggleDisplay >>> setConfig
-            klass_ "cursor-pointer"
+          [ click $ config <#> toggleDisplay >>> setConfig
+          , klass_ "cursor-pointer"
+          ]
           [ text_ "Toggle Display" ]
       , D.div
-          Alt.do
             --D.OnMouseover !:= cb \e -> do
             --  c <- controls
             --do
             --setControls c
-            D.OnMouseleave !:= cb \e -> do
+          [ D.OnMouseleave !:= cb \e -> do
               logShow "mouseleave"
+          ]
           [ D.div_ [ guard controls (text_ "click clack") ]
           , display defaultOptions "a^2 + b^2 = c^2"
           ]
@@ -170,11 +170,9 @@ editor =
           $ map
               ( \op ->
                   D.li
-                    ( Alt.do
-                        D.Self
-                          !:= \(e :: Element) -> do
-                            viewKatex (show op) e (defaultOptions { displayMode = true })
-                    )
+                    [ D.Self !:= \(e :: Element) -> do
+                        viewKatex (show op) e (defaultOptions { displayMode = true })
+                    ]
                     []
               )
               [ Sum
@@ -188,17 +186,17 @@ editor =
 inline :: KatexSettings -> String -> Nut
 inline config s =
   D.span
-    Alt.do
-      D.Self !:= \(e :: Element) -> do
+    [ D.Self !:= \(e :: Element) -> do
         viewKatex s e (config { displayMode = false })
+    ]
     []
 
 display :: KatexSettings -> String -> Nut
 display config s =
   D.span
-    Alt.do
-      D.Self !:= \(e :: Element) -> do
+    [ D.Self !:= \(e :: Element) -> do
         viewKatex s e (config { displayMode = true })
+    ]
     []
 
 buttonClass :: String
@@ -230,63 +228,57 @@ differentialEqn = Deku.do
   D.div_
     [ D.div_
         [ D.button
-            ( oneOf
-                [ klass_ buttonClass, click_ (setThunk unit) ]
-            )
+            [ klass_ buttonClass, click_ (setThunk unit) ]
             [ text_ "Restart simulation" ]
         ]
     , D.div_
         [ D.input
-            ( oneOf
-                [ D.Xtype !:= "range"
-                , klass_ "w-full"
-                , D.Min !:= "-1.0"
-                , D.Max !:= "1.0"
-                , D.Step !:= "0.01"
-                , motion
-                ]
-            )
+            [ D.Xtype !:= "range"
+            , klass_ "w-full"
+            , D.Min !:= "-1.0"
+            , D.Max !:= "1.0"
+            , D.Step !:= "0.01"
+            , motion
+            ]
             []
         ]
     ]
 
 --render
---  :: forall n r lock payload
+--  :: forall n r 
 --   . Newtype n
 --      { render ::
 --        { katex :: String
 --        , config  :: KatexSettings
---        , cont :: n -> Domable lock payload
+--        , cont :: n -> Nut
 --        }
 --      | r
 --      }
 --  => n
---  -> Domable lock payload
+--  -> Nut
 --render = do
 
 render
-  :: forall lock payload
-   . { config :: Event KatexSettings
+  :: { config :: Event KatexSettings
      , katex :: Event String
      }
-  -> Domable lock payload
+  -> Nut
 render { config, katex } =
   (Tuple <$> config <*> katex) <#~>
     \(cfg /\ ktx) ->
       D.span
-        Alt.do
-          D.Self !:= \elt -> do
+        [ D.Self !:= \elt -> do
             viewKatex ktx elt cfg
+        ]
         []
 
 render_
-  :: forall lock payload
-   . KatexSettings
+  :: KatexSettings
   -> String
-  -> Domable lock payload
+  -> Nut
 render_ config katex =
   D.span
-    Alt.do
-      D.Self !:= \elt -> do
+    [ D.Self !:= \elt -> do
         viewKatex katex elt config
+    ]
     []

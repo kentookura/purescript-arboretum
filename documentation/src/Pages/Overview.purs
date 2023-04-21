@@ -7,6 +7,6 @@ import Contracts (Chapter, chapter)
 import Pages.Notes (notes)
 import Pages.Demos (demos)
 
-overview :: forall lock payload. Chapter lock payload
+overview :: Chapter
 overview = chapter
   { title: "Overview", pages: [ demos, notes ] }

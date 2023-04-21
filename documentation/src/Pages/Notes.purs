@@ -9,7 +9,7 @@ import Router.Route (Route(..))
 --import Prism (forceHighlight)
 --import QualifiedDo.Alt as Alt
 
-notes :: forall lock payload. Page lock payload
+notes :: Page
 notes =
   page
     { route: Notes

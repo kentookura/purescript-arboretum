@@ -10,7 +10,7 @@ import Data.Newtype (unwrap)
 import Deku.Attribute ((!:=))
 import Deku.Attributes (klass)
 import Deku.Control (text_)
-import Deku.Core (Domable, Nut)
+import Deku.Core (Nut)
 import Deku.DOM as D
 import FRP.Event (Event)
 import Navigation (PushState)
@@ -18,15 +18,14 @@ import Pages.Docs (book)
 import Router.Route (Route)
 
 pageLi
-  :: forall lock payload
-   . { pageIs :: Route -> Event Unit
+  :: { pageIs :: Route -> Event Unit
      , pageWas :: Route -> Event Unit
      , pushState :: PushState
      }
-  -> Page lock payload
-  -> Domable lock payload
+  -> Page
+  -> Nut
 pageLi { pushState, pageIs, pageWas } (Page { route }) = D.li
-  (D.Class !:= "relative")
+  [ D.Class !:= "relative" ]
   [ link pushState route
       ( oneOf
           [ klass $
@@ -43,26 +42,23 @@ pageLi { pushState, pageIs, pageWas } (Page { route }) = D.li
   ]
 
 chapterLi
-  :: forall lock payload
-   . { pageIs :: Route -> Event Unit
+  :: { pageIs :: Route -> Event Unit
      , pageWas :: Route -> Event Unit
      , pushState :: PushState
      }
-  -> Chapter lock payload
-  -> Domable lock payload
+  -> Chapter
+  -> Nut
 chapterLi opts (Chapter { title, pages }) = D.li_
   [ D.h2
-      ( D.Class !:=
+      [ D.Class !:=
           "font-display font-medium text-slate-900 dark:text-white"
-      )
+      ]
       [ text_ title ]
   , D.ul
-      ( oneOf
-          [ D.Role !:= "list"
-          , D.Class !:=
-              "mt-2 space-y-2 border-l-2 border-slate-100 dark:border-slate-800 lg:mt-4 lg:space-y-4 lg:border-slate-200"
-          ]
-      )
+      [ D.Role !:= "list"
+      , D.Class !:=
+          "mt-2 space-y-2 border-l-2 border-slate-100 dark:border-slate-800 lg:mt-4 lg:space-y-4 lg:border-slate-200"
+      ]
       (pageLi opts <$> pages)
   ]
 
@@ -73,31 +69,31 @@ leftMatter
      }
   -> Nut
 leftMatter opts = D.div
-  (D.Class !:= "hidden lg:relative lg:block lg:flex-none")
+  [ D.Class !:= "hidden lg:relative lg:block lg:flex-none" ]
   [ D.div
-      ( D.Class !:=
+      [ D.Class !:=
           "absolute inset-y-0 right-0 w-[50vw] bg-slate-50 dark:hidden"
-      )
+      ]
       []
   , D.div
-      ( D.Class !:=
+      [ D.Class !:=
           "absolute top-16 bottom-0 right-0 hidden h-12 w-px bg-gradient-to-t from-slate-800 dark:block"
-      )
+      ]
       []
   , D.div
-      ( D.Class !:=
+      [ D.Class !:=
           "absolute top-28 bottom-0 right-0 hidden w-px bg-slate-800 dark:block"
-      )
+      ]
       []
   , D.div
-      ( D.Class !:=
+      [ D.Class !:=
           "sticky top-[4.5rem] -ml-0.5 h-[calc(100vh-4.5rem)] overflow-y-auto overflow-x-hidden py-16 pl-0.5"
-      )
+      ]
       [ D.nav
-          ( D.Class !:=
+          [ D.Class !:=
               "text-base lg:text-sm w-64 pr-8 xl:w-72 xl:pr-16"
-          )
-          [ D.ul (oneOf [ D.Role !:= "list", D.Class !:= "space-y-9" ])
+          ]
+          [ D.ul [ D.Role !:= "list", D.Class !:= "space-y-9" ]
               (chapterLi opts <$> unwrap book)
           ]
       ]

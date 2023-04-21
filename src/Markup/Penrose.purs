@@ -14,7 +14,7 @@ import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested ((/\))
 import Deku.Attribute ((!:=))
 import Deku.Attributes (klass_)
-import Deku.Core (Domable, Nut)
+import Deku.Core (Nut)
 import Deku.Control (text_, (<#~>), blank)
 import Deku.Do as Deku
 import Deku.DOM as D
@@ -60,9 +60,9 @@ render
   -> Nut
 render p =
   D.span
-    Alt.do
-      D.Self !:= \(elt :: Element) -> do
+    [ D.Self !:= \(elt :: Element) -> do
         diagram p elt "pathresolver" (Just "Hello World!")
+    ]
     []
 
 data File = Substance | Style | Domain
@@ -85,22 +85,19 @@ viewSources
 viewSources p = Deku.do
   viewFile /\ filetype <- useState Substance
   D.div
-    Alt.do
-      klass_ "relative right-0"
+    [ klass_ "relative right-0" ]
     [ D.ul
-        Alt.do
-          klass_ "relative flex list-none flex-wrap rounded-lg p-1 mt-0"
+        [ klass_ "relative flex list-none flex-wrap rounded-lg p-1 mt-0" ]
         $
           map
             ( \(Tuple ft ext) ->
                 D.li
-                  Alt.do
-                    let base = "flex-auto text-center"
-                    klass_ ""
+                    --let base = "flex-auto text-center"
+                  [ klass_ "" ]
                   [ D.a
-                      Alt.do
-                        klass_ tabButton
-                        click_ $ viewFile ft
+                      [  klass_ tabButton
+                      , click_ $ viewFile ft
+                      ]
                       [ text_ ext ]
                   ]
             )
@@ -109,7 +106,7 @@ viewSources p = Deku.do
             , (Style /\ ".sty")
             ]
     , D.pre
-        (D.Class !:= ("prism-code"))
+        [ D.Class !:= ("prism-code") ]
         [ D.code_
             [ filetype <#~>
                 case _ of

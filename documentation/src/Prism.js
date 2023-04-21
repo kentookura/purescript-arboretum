@@ -1,10 +1,10 @@
 import * as Prism from 'prismjs'
-import 'prismjs/components/prism-haskell'
-import 'prismjs/components/prism-purescript'
-import 'prismjs/components/prism-shell-session'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-markup'
-import 'prismjs/plugins/autoloader/prism-autoloader'
+//import 'prismjs/components/prism-haskell'
+//import 'prismjs/components/prism-purescript'
+//import 'prismjs/components/prism-shell-session'
+//import 'prismjs/components/prism-javascript'
+//import 'prismjs/components/prism-markup'
+//import 'prismjs/plugins/autoloader/prism-autoloader'
 
 export const highlightAll = () => {
   Prism.highlightAll();

@@ -35,7 +35,7 @@ renderInline =
     Emph is -> D.i_ $ A.fromFoldable (map renderInline is)
     Strong is -> D.strong_ $ A.fromFoldable (map renderInline is)
     Code bool str -> D.code_ [ text_ str ]
-    Link is (InlineLink tgt) -> D.a (href (pure tgt)) $ A.fromFoldable (map renderInline is)
+    Link is (InlineLink tgt) -> D.a [href (pure tgt)] $ A.fromFoldable (map renderInline is)
     Link is (ReferenceLink tgt) -> D.a_ $ A.fromFoldable (map renderInline is)
     Math s -> inline defaultOptions s
 
@@ -84,9 +84,9 @@ renderTheorem t = Deku.do
     [ D.h2_ $ [ text_ t.title ]
     , t.statement
     , D.a
-        Alt.do
-          klass_ "cursor-pointer"
-          click $ visible <#> not >>> setVisible
+        [ klass_ "cursor-pointer"
+        , click $ visible <#> not >>> setVisible
+        ]
         [ text_ "toggle theorem" ]
     , D.div_
         [ visible <#~>

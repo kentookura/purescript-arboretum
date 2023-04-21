@@ -4,6 +4,6 @@ import Contracts (Chapter, chapter)
 
 --import Pages.Introduction.GettingStarted (gettingStarted)
 
-zipper :: forall lock payload. Chapter lock payload
+zipper :: Chapter
 zipper = chapter
   { title: "Introduction", pages: [] }

@@ -38,19 +38,18 @@ editor a = Deku.do
   setZipper /\ zipper <- useState a
   D.div_
     [ D.pre
-        ( Alt.do
-            D.Class !:= "editor"
-            D.Contenteditable !:= "true"
-            D.OnAuxclick !:= cb \e -> do
-              preventDefault e
-              log "TODO: Wire up context menu"
-            keyDown $ zipper <#>
-              ( \z -> \event -> do
-                  preventDefault $ toEvent event
-                  logShow $ keyAction event
-                  setZipper (edit (keyAction event) z)
-              )
-        )
+        [ D.Class !:= "editor"
+        , D.Contenteditable !:= "true"
+        , D.OnAuxclick !:= cb \e -> do
+            preventDefault e
+            log "TODO: Wire up context menu"
+        , keyDown $ zipper <#>
+            ( \z -> \event -> do
+                preventDefault $ toEvent event
+                logShow $ keyAction event
+                setZipper (edit (keyAction event) z)
+            )
+        ]
         [ view <$~> zipper
         ]
     ]

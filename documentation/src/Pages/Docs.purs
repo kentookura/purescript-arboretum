@@ -11,5 +11,5 @@ import Contracts (Book(..))
 import Pages.Overview (overview)
 import Pages.Cryptography (cryptography)
 
-book :: forall lock payload. Book lock payload
+book :: Book
 book = Book [ overview, cryptography ]

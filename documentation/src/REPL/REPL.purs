@@ -96,14 +96,12 @@ repl = Deku.do
 
   D.div_
     [ D.input
-        ( oneOf
-            [ textInput $ pure (pushAction <<< ChangeText)
-            , klass_ "text-gray-100 bg-gray-800 w-full"
-            , keyUp $ pure \evt -> do
-                when (code evt == "Enter") $ do
-                  pushAction Input
-            ]
-        )
+        [ textInput $ pure (pushAction <<< ChangeText)
+        , klass_ "text-gray-100 bg-gray-800 w-full"
+        , keyUp $ pure \evt -> do
+            when (code evt == "Enter") $ do
+              pushAction Input
+        ]
         []
     , dyn
         $ map
@@ -199,32 +197,29 @@ term = runInBody Deku.do
       )
 
     top :: Nut
-    top = D.div (klass_ "top mb-2 flex")
-      [ D.div (klass_ "h-3 w-3 bg-red-500 rounded-full") []
-      , D.div (klass_ "ml-2 h-3 w-3 bg-orange-300 rounded-full") []
-      , D.div (klass_ "ml-2 h-3 w-3 bg-green-500 rounded-full") []
+    top = D.div [ klass_ "top mb-2 flex" ]
+      [ D.div [ klass_ "h-3 w-3 bg-red-500 rounded-full" ] []
+      , D.div [ klass_ "ml-2 h-3 w-3 bg-orange-300 rounded-full" ] []
+      , D.div [ klass_ "ml-2 h-3 w-3 bg-green-500 rounded-full" ] []
       ]
 
     cmdline :: Nut
-    cmdline = D.div (klass_ "text-gra y-100 bg-gray-800")
-      [ D.div (klass_ "text-green-300 flex flex-row")
+    cmdline = D.div [ klass_ "text-gra y-100 bg-gray-800" ]
+      [ D.div [ klass_ "text-green-300 flex flex-row" ]
           [ text_ "❯ "
           , D.input
-              ( oneOf
-                  [ textInput $ pure (pushAction <<< ChangeText)
-                  , klass_ "text-gray-100 bg-gray-800 w-full"
-                  , keyUp $ pure \evt -> do
-                      when (code evt == "Enter") $ do
-                        pushAction Input
-                  ]
-              )
+              [ textInput $ pure (pushAction <<< ChangeText)
+              , klass_ "text-gray-100 bg-gray-800 w-full"
+              , keyUp $ pure \evt -> do
+                  when (code evt == "Enter") $ do
+                    pushAction Input
+              ]
               []
           ]
       ]
   D.div
-    ( Alt.do
-        klass_ "coding inverse-toggle px-5 pt-4 shadow-lg text-gray-100 text-sm font-mono subpixel-antialiased bg-gray-800  pb-6 pt-4 rounded-lg leading-normal overflow-hidden"
-    )
+    [ klass_ "coding inverse-toggle px-5 pt-4 shadow-lg text-gray-100 text-sm font-mono subpixel-antialiased bg-gray-800  pb-6 pt-4 rounded-lg leading-normal overflow-hidden"
+    ]
     [ top
     --, dyn
     --    $ map

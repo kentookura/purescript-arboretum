@@ -18,7 +18,7 @@ import Data.String.CodeUnits (toCharArray, fromCharArray)
 import Data.Tuple (Tuple(..))
 import Deku.Attribute ((!:=))
 import Deku.Control (text, text_, switcher)
-import Deku.Core (Domable(..), Nut)
+import Deku.Core (Nut)
 import Deku.DOM as D
 import FRP.Event (Event)
 import Markup.Editable (class Editable)
@@ -63,11 +63,11 @@ right (j /\ k) = case uncons k of
   Just { head, tail } -> (singleton head <> j) /\ tail
 
 instance editableStringZipper :: Editable StringZipper where
-  view :: forall lock payload. StringZipper -> Domable lock payload
+  view :: StringZipper -> Nut
   view zipper =
-    D.div (D.Class !:= "zipper-view")
+    D.div [ D.Class !:= "zipper-view" ]
       [ text_ $ (fst >>> toCharArray >>> reverse >>> fromCharArray) zipper
-      , D.div (D.Id !:= "fake-caret") []
+      , D.div [ D.Id !:= "fake-caret" ] []
       , text_ $ snd zipper
       ]
   edit :: Key -> StringZipper -> StringZipper

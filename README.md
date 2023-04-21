@@ -2,6 +2,16 @@
 
 Work in progress structure editing framework in purescript.
 
+## Work log
+
+I want to have a list of dynamic components, to which we can add elements by clicking in the "codebase explorer".
+
+```
+data CodebaseTree a
+  = Namespace String (Array (CodebaseTree a))
+  | Node a
+```
+
 ## Current features:
 
 * Basic Markdown parsing. See `test/` for current capabilities.

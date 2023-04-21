@@ -4,7 +4,7 @@ import Prelude
 import Data.Array (range)
 import Prim.Int (class Add, class Mul, class Compare)
 import Deku.Attribute ((!:=))
-import Deku.Core (Domable, Nut)
+import Deku.Core (Nut)
 import Deku.DOM as D
 import Data.Maybe (Maybe)
 import Effect (Effect)

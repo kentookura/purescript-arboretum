@@ -9,7 +9,7 @@ import Pages.Notes (notes)
 import Pages.Cryptography.Intro (intro)
 import Router.Route (Route(..))
 
-routeToPage :: forall lock payload. Route -> Page lock payload
+routeToPage :: Route -> Page
 routeToPage Demo = demos
 routeToPage Home = demos
 routeToPage Notes = notes
