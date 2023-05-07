@@ -43,6 +43,10 @@ main = launchAff_ do
 fileGlob :: String -> Array String
 fileGlob dir = 
   let go x = dir <> "/**/*" <> x
+<<<<<<< HEAD
   in go <$> [".md", ".neat"]
+=======
+  in go <$> [".md"]
+>>>>>>> 1379100 (watch files a la psc-ide)
 
 foreign import gazeImpl :: EffectFn2 (Array String) (String -> Effect Unit) Unit
