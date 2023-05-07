@@ -1,6 +1,9 @@
 { name = "cli"
 , dependencies =
-  [ "arrays"
+  [ "aff"
+  , "affjax"
+  , "affjax-node"
+  , "arrays"
   , "console"
   , "effect"
   , "either"
@@ -10,9 +13,11 @@
   , "maybe"
   , "node-buffer"
   , "node-fs"
+  , "node-fs-aff"
   , "node-path"
   , "nullable"
   , "optparse"
+  , "parsing"
   , "prelude"
   , "tuples"
   ]

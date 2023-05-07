@@ -1,4 +1,54 @@
-module Markup.Parser where
+module Markup.Parser
+  ( Container(..)
+  , Doc(..)
+  , P
+  , allChars
+  , blockParser
+  , BlockType(..)
+  , codeFenceChar
+  , codeFenceInfo
+  , countLeadingSpaces
+  , fromIndentedChunk
+  , getCListItem
+  , getCText
+  , inlines
+  , isATXHeader
+  , isBlockquoteLine
+  , isBulleted
+  , isCodeFence
+  , isDigit
+  , isEvaluatedCode
+  , isFenceChar
+  , isIndentedChunk
+  , isIndentedTo
+  , isLinkReference
+  , isListItem
+  , isListItemLine
+  , isOrderedListMarker
+  , isRule
+  , isRuleChar
+  , isSetextHeader
+  , isSpace
+  , isTextContainer
+  , listItemIndent
+  , listItemType
+  , min
+  , parseBlocks
+  , parseContainers
+  , parseInlines
+  , parseMarkup
+  , removeNonIndentingSpaces
+  , setextLevel
+  , someOf
+  , splitATXHeader
+  , splitBlockquote
+  , splitCodeFence
+  , splitIndentedChunks
+  , splitListItem
+  , tabsToSpaces
+  , toString
+  )
+  where
 
 import Prelude
 
@@ -32,32 +82,57 @@ import Data.Traversable (traverse)
 import Partial.Unsafe (unsafePartial)
 import Parsing.Combinators (manyTill, option, optionMaybe, try)
 
-import Parsing.String (string, eof, anyChar, satisfy)
+import Parsing.String (string, char, eof, anyChar, satisfy)
 import Parsing (runParser, Parser, ParseError, fail)
 
 import Markup.Parser.References as Ref
 import Markup.Parser.Utils (isWhitespace)
 
-type P a = Parser String a
+data Doc a = Doc a
 
-data Container
-  = CText String
-  | CBlank
-  | CRule
-  | CATXHeader Int String
-  | CSetextHeader Int
-  | CBlockquote (List Container)
-  | CListItem ListType (List Container)
-  | CCodeBlockFenced Boolean String (List String)
-  | CCodeBlockIndented (List String)
-  | CLinkReference Block
+instance showDoc :: Show a => Show (Doc a) where
+  show (Doc a) = "(Doc " <> show a <> ")"
+
+blockParser :: Parser String (Doc BlockType)
+blockParser = do
+  _ <- char '|'
+  b <- blocktype
+  pure (Doc b)
+
+data BlockType = Builtin | Custom String
+
+instance showBlockType :: Show BlockType where
+  show Builtin = "Builtin"
+  show (Custom s) = "Custom " <> s
+
+blocktype :: Parser String BlockType
+blocktype = do
+  builtin <|> custom
+  where
+    builtin = do 
+      _ <- char '>'
+      pure Builtin
+
+    custom = do
+      _ <- space
+      s <- someOf (isAlphaNum <<< codePointFromChar)
+      pure $ Custom s
+
+  --_ <- toBlockType 
+  --pure Builtin
+  --where
+    --toBlockType cs
+      -- | false = Custom "asdf"
+      -- | otherwise = Builtin
+
+
 
 parseMarkup :: String -> Either ParseError Markup
 parseMarkup mkup = map Markup (parseBlocks containers)
   where
   lines =
     L.fromFoldable
-      $ S.split (S.Pattern "\n") -- should this happen here?
+      $ S.split (S.Pattern "\n") 
       $ R.replace slashR ""
       $ tabsToSpaces mkup
   containers = parseContainers mempty lines
@@ -103,45 +178,6 @@ inlines = L.many inline2 <* eof
       Right v -> pure v
       Left e -> fail e
 
-  alphaNumStr :: P Inline
-  alphaNumStr = Str <$> someOf (isAlphaNum <<< codePointFromChar)
-
-  space :: P Inline
-  space = (toSpace <<< (singleton <$> _)) <$> L.some (satisfy isWhitespace)
-    where
-    toSpace cs
-      | "\n" `elem` cs =
-          case L.take 2 cs of
-            L.Cons " " (L.Cons " " L.Nil) -> LineBreak
-            _ -> SoftBreak
-      | otherwise = Space
-
-  code :: P Inline
-  code = do
-    eval <- option false (string "!" *> pure true)
-    ticks <- someOf (\x -> singleton x == "`")
-    contents <- (fromCharArray <<< A.fromFoldable) <$> manyTill anyChar (string ticks)
-    pure <<< Code eval <<< trim $ contents
-
-  emph :: P Inline -> P Inline
-  emph p = emphasis p Emph "*" <|> emphasis p Emph "_"
-
-  math :: P Inline
-  math = do
-    _ <- string "$"
-    contents <- (fromCharArray <<< A.fromFoldable) <$> manyTill anyChar (string "$")
-    pure <<< Math <<< trim $ contents
-
-  --Math <$> manyTill p (string "$")
-
-  strong :: P Inline -> P Inline
-  strong p = emphasis p Strong "**" <|> emphasis p Strong "__"
-
-  strongEmph :: P Inline -> P Inline
-  strongEmph p = emphasis p f "***" <|> emphasis p f "___"
-    where
-    f is = Strong $ L.singleton $ Emph is
-
   link :: P Inline
   link = Link <$> linkLabel <*> linkTarget
     where
@@ -157,23 +193,77 @@ inlines = L.many inline2 <* eof
     referenceLink :: P LinkTarget
     referenceLink = ReferenceLink <$> optionMaybe ((fromCharArray <<< A.fromFoldable) <$> (string "[" *> manyTill anyChar (string "]")))
 
-  emphasis
-    :: P (Inline)
-    -> (List (Inline) -> Inline)
-    -> String
-    -> P Inline
-  emphasis p f s = do
-    _ <- string s
-    f <$> manyTill p (string s)
 
-  other :: P Inline
-  other = do
-    c <- singleton <$> anyChar
-    if c == "\\" then
-      (Str <<< singleton) <$> anyChar
-        <|> ((satisfy (\x -> singleton x == "\n")) *> pure LineBreak)
-        <|> pure (Str "\\")
-    else pure (Str c)
+alphaNumStr :: P Inline
+alphaNumStr = Str <$> someOf (isAlphaNum <<< codePointFromChar)
+
+space :: P Inline
+space = (toSpace <<< (singleton <$> _)) <$> L.some (satisfy isWhitespace)
+  where
+  toSpace cs
+    | "\n" `elem` cs =
+        case L.take 2 cs of
+          L.Cons " " (L.Cons " " L.Nil) -> LineBreak
+          _ -> SoftBreak
+    | otherwise = Space
+
+code :: P Inline
+code = do
+  eval <- option false (string "!" *> pure true)
+  ticks <- someOf (\x -> singleton x == "`")
+  contents <- (fromCharArray <<< A.fromFoldable) <$> manyTill anyChar (string ticks)
+  pure <<< Code eval <<< trim $ contents
+
+emph :: P Inline -> P Inline
+emph p = emphasis p Emph "*" <|> emphasis p Emph "_"
+
+math :: P Inline
+math = do
+  _ <- string "$"
+  contents <- (fromCharArray <<< A.fromFoldable) <$> manyTill anyChar (string "$")
+  pure <<< Math <<< trim $ contents
+
+--Math <$> manyTill p (string "$")
+
+strong :: P Inline -> P Inline
+strong p = emphasis p Strong "**" <|> emphasis p Strong "__"
+
+strongEmph :: P Inline -> P Inline
+strongEmph p = emphasis p f "***" <|> emphasis p f "___"
+  where
+  f is = Strong $ L.singleton $ Emph is
+
+emphasis
+  :: P (Inline)
+  -> (List (Inline) -> Inline)
+  -> String
+  -> P Inline
+emphasis p f s = do
+  _ <- string s
+  f <$> manyTill p (string s)
+
+other :: P Inline
+other = do
+  c <- singleton <$> anyChar
+  if c == "\\" then
+    (Str <<< singleton) <$> anyChar
+      <|> ((satisfy (\x -> singleton x == "\n")) *> pure LineBreak)
+      <|> pure (Str "\\")
+  else pure (Str c)
+
+type P a = Parser String a
+
+data Container
+  = CText String
+  | CBlank
+  | CRule
+  | CATXHeader Int String
+  | CSetextHeader Int
+  | CBlockquote (List Container)
+  | CListItem ListType (List Container)
+  | CCodeBlockFenced Boolean String (List String)
+  | CCodeBlockIndented (List String)
+  | CLinkReference Block
 
 parseBlocks :: List Container -> Either ParseError (List Block)
 parseBlocks =
