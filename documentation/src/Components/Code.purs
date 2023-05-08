@@ -4,7 +4,7 @@ import Prelude
 
 import Clipboard (copyToClipboard)
 import Control.Plus (empty)
-import Data.Foldable (oneOf)
+
 import Deku.Attribute (Attribute, (!:=))
 import Deku.Attributes (klass_)
 import Deku.Control (text_)

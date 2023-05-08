@@ -6,7 +6,7 @@ import Components.Link (link, link')
 import Contracts (Chapter(..), Page(..))
 import Control.Alt ((<|>))
 import Control.Plus (empty)
-import Data.Foldable (oneOf)
+
 import Data.Newtype (unwrap)
 import Deku.Attribute ((!:=))
 import Deku.Attributes (klass, klass_)

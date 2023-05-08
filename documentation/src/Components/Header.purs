@@ -6,7 +6,7 @@ import Components.LeftMatterMobile (leftMatterMobile)
 import Components.Link (link')
 import Control.Plus (empty)
 import DarkModePreference (DarkModePreference(..))
-import Data.Foldable (oneOf)
+
 import Data.Tuple.Nested ((/\))
 import Deku.Attribute ((!:=))
 import Deku.Attributes (klass, klass_)

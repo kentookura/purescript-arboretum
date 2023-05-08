@@ -1,4 +1,6 @@
-module Main where
+module Main
+  ( main
+  ) where
 
 import Prelude
 
@@ -16,13 +18,13 @@ import Deku.Core (envy)
 import Deku.Do as Deku
 import Deku.Toplevel (runInBody)
 import Effect (Effect)
-import Effect.Class.Console (logShow)
+import Effect.Console as Log
 import Effect.Ref as Ref
 import FRP.Dedup (dedup)
 import FRP.Event (create, fold, mailboxed, memoize, subscribe)
 import FRP.Lag (lag)
-import Router.Route (Route(..), route)
 import Router.Page (routeToPage)
+import Router.Route (Route(..), route)
 import Routing.Duplex (parse)
 import Routing.PushState (makeInterface, matchesWith)
 import Web.DOM.Element (getBoundingClientRect)
@@ -32,6 +34,7 @@ import Web.HTML (window)
 import Web.HTML.Window (toEventTarget)
 
 pixelBufferForScroll = 100.0 :: Number
+
 data ScrolledSection
   = ScrolledCandidate Int
   | ScrolledDefinite Int
@@ -44,23 +47,24 @@ instance Show ScrolledSection where
   show = genericShow
 
 getScrolledSection :: Int -> (Int -> Effect ScrolledSection) -> Effect Int
-getScrolledSection startingAt f = go ScrollCheckStart startingAt startingAt
+getScrolledSection startingAt f = go 0 ScrollCheckStart startingAt startingAt
   where
-  go checkDir n head = do
-    scrolledSection <- f head
-    case scrolledSection of
-      ScrolledDefinite i -> pure i
-      ScrolledCandidate i -> case checkDir of
-        ScrollCheckDown -> pure i
-        _ -> go ScrollCheckUp i (i + 1)
-      NotScrolled ->
-        if n == 0 then pure 0
-        else case checkDir of
-          ScrollCheckUp -> pure n
-          _ -> go ScrollCheckDown n (head - 1)
+  go rc checkDir n head = case rc of
+    7 -> Log.error "Infinite loop, ping Mike." *> pure 0
+    _ -> do
+      scrolledSection <- f head
+      case scrolledSection of
+        ScrolledDefinite i -> pure i
+        ScrolledCandidate i -> case checkDir of
+          ScrollCheckDown -> pure i
+          _ -> go (rc + 1) ScrollCheckUp i (i + 1)
+        NotScrolled ->
+          if n == 0 then pure 0
+          else case checkDir of
+            ScrollCheckUp -> pure n
+            _ -> go (rc + 1) ScrollCheckDown n (head - 1)
 
 main :: Effect Unit
---main = runInBody Deku.do
 main = do
   clickedSection <- Ref.new Nothing
   currentRouteMailbox <- create
@@ -131,7 +135,6 @@ main = do
             pure goHere
           Nothing -> getScrolledSection wasHere toVerify
         Ref.write goHere currentSectionRef
-        logShow { goHere }
         rightSideNavSelectE.push goHere
       changeListener newListener
   runInBody
@@ -153,6 +156,7 @@ main = do
           , rightSideNavDeselect
           , pushState: psi.pushState
           , curPage: routeToPage <$> currentRoute.event
+          --, showBanner: dedup (eq Home <$> currentRoute.event)
           , setHeaderElement: headerElement.push
           , setRightSideNav: Just >>> rightSideNav.push
           , clickedSection

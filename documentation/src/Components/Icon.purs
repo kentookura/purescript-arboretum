@@ -1,6 +1,5 @@
 module Components.Icon where
 
-import Data.Foldable (oneOf)
 import Deku.DOM as D
 import Deku.Do as Deku
 import Deku.Core (Nut)

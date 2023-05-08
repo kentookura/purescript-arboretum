@@ -9,7 +9,7 @@ import Control.Monad.Reader (ask)
 import Data.Array (sort)
 import Data.Either (Either(..), hush)
 import Data.Filterable (compact)
-import Data.Foldable (oneOf)
+
 import Data.Map (lookup, keys)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Tuple (Tuple(..))

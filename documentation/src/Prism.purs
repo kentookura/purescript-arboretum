@@ -2,7 +2,6 @@ module Prism where
 
 import Prelude
 
-import Data.Foldable (oneOf)
 import Deku.Attribute ((!:=))
 import Deku.Attributes (klass_)
 import Deku.Core (Nut)

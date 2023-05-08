@@ -3,7 +3,7 @@ module Components.BottomNav where
 import Prelude
 
 import Components.Link (link')
-import Data.Foldable (oneOf)
+
 import Data.Maybe (Maybe, maybe)
 import Data.Newtype (unwrap)
 import Deku.Attribute ((!:=))
