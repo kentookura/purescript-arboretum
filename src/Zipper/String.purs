@@ -5,62 +5,62 @@ module Zipper.String
   , insert
   , insertString
   , StringZipper(..)
-  , fst
-  , snd
+  , (-|-)
   ) where
 
-import Data.Maybe
 import Prelude
 
 import Data.Array (reverse)
-import Data.String (codePointFromChar, CodePoint, singleton, uncons, length)
+import Data.Maybe (Maybe(..))
+import Data.String (CodePoint, codePointFromChar, length, singleton, uncons)
 import Data.String.CodeUnits (toCharArray, fromCharArray)
-import Data.Tuple (Tuple(..))
 import Deku.Attribute ((!:=))
-import Deku.Control (text, text_, switcher)
+import Deku.Control (text_)
 import Deku.Core (Nut)
 import Deku.DOM as D
-import FRP.Event (Event)
 import Markup.Editable (class Editable)
 import Markup.Keyboard (Key(..))
-import Web.UIEvent.KeyboardEvent (toEvent, KeyboardEvent, key, code, shiftKey, ctrlKey)
+import Web.UIEvent.KeyboardEvent (key, ctrlKey)
 
-data StringZipper = Z String String
+data StringZipper = StringZipper String String
 
-infixr 6 Z as /\
+infixr 6 StringZipper as -|-
 
 fst :: StringZipper -> String
-fst (Z s _) = s
+fst (StringZipper s _) = s
 
 snd :: StringZipper -> String
-snd (Z _ s) = s
+snd (StringZipper _ s) = s
 
 end :: StringZipper -> StringZipper
-end (j /\ k) = (j <> (toCharArray >>> reverse >>> fromCharArray) k) /\ ""
+end (j -|- k) = (j <> (toCharArray >>> reverse >>> fromCharArray) k) -|- ""
 
 start :: StringZipper -> StringZipper
-start (j /\ k) = "" /\ ((toCharArray >>> reverse >>> fromCharArray) j <> k)
+start (j -|- k) = "" -|- ((toCharArray >>> reverse >>> fromCharArray) j <> k)
 
+-- | insert a `String` at the cursor position
 insertString :: String -> StringZipper -> StringZipper
-insertString s (j /\ k) = (s <> j) /\ k
+insertString s (j -|- k) = (s <> j) -|- k
 
+-- | insert a `CodePoint` at the cursor position
 insert :: CodePoint -> StringZipper -> StringZipper
-insert s (j /\ k) = (singleton s <> j) /\ k
+insert s (j -|- k) = (singleton s <> j) -|- k
 
+-- | Delete one `Char` to the left
 backspace :: StringZipper -> StringZipper
-backspace (j /\ k) = case uncons j of
-  Nothing -> j /\ k
-  Just { head, tail } -> tail /\ k
+backspace (j -|- k) = case uncons j of
+  Nothing -> j -|- k
+  Just { head, tail } -> tail -|- k
 
 left :: StringZipper -> StringZipper
-left (j /\ k) = case uncons j of
-  Nothing -> j /\ k
-  Just { head, tail } -> tail /\ (singleton head <> k)
+left (j -|- k) = case uncons j of
+  Nothing -> j -|- k
+  Just { head, tail } -> tail -|- (singleton head <> k)
 
 right :: StringZipper -> StringZipper
-right (j /\ k) = case uncons k of
-  Nothing -> j /\ k
-  Just { head, tail } -> (singleton head <> j) /\ tail
+right (j -|- k) = case uncons k of
+  Nothing -> j -|- k
+  Just { head, tail } -> (singleton head <> j) -|- tail
 
 instance editableStringZipper :: Editable StringZipper where
   view :: StringZipper -> Nut
@@ -82,7 +82,7 @@ instance editableStringZipper :: Editable StringZipper where
       Shift -> \x -> x
       Control -> \x -> x
       Alt -> \x -> x
-      Tab -> \x -> x
+      Tab -> insert $ codePointFromChar '\t'
       ShiftTab -> \x -> x
       CapsLock -> \x -> x
       ShiftEnter -> \x -> x
@@ -103,7 +103,6 @@ instance editableStringZipper :: Editable StringZipper where
       Yank -> \x -> x
       Escape -> do
         \x -> x
-      --setPalette false
       Unhandled e ->
         let
           k
