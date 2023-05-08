@@ -5,6 +5,7 @@
   , "affjax-node"
   , "arrays"
   , "console"
+  , "control"
   , "effect"
   , "either"
   , "exceptions"
@@ -13,13 +14,18 @@
   , "maybe"
   , "node-buffer"
   , "node-fs"
-  , "node-fs-aff"
   , "node-path"
+  , "node-process"
   , "nullable"
   , "optparse"
   , "parsing"
   , "prelude"
+  , "refs"
+  , "routing-duplex"
+  , "strings"
+  , "transformers"
   , "tuples"
+  , "typelevel-prelude"
   ]
 , packages = (./spago.dhall).packages
 , sources = [ "cli/**/*.purs" ]
