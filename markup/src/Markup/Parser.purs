@@ -47,8 +47,7 @@ module Markup.Parser
   , splitListItem
   , tabsToSpaces
   , toString
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -109,30 +108,28 @@ blocktype :: Parser String BlockType
 blocktype = do
   builtin <|> custom
   where
-    builtin = do 
-      _ <- char '>'
-      pure Builtin
+  builtin = do
+    _ <- char '>'
+    pure Builtin
 
-    custom = do
-      _ <- space
-      s <- someOf (isAlphaNum <<< codePointFromChar)
-      pure $ Custom s
+  custom = do
+    _ <- space
+    s <- someOf (isAlphaNum <<< codePointFromChar)
+    pure $ Custom s
 
-  --_ <- toBlockType 
-  --pure Builtin
-  --where
-    --toBlockType cs
-      -- | false = Custom "asdf"
-      -- | otherwise = Builtin
-
-
+--_ <- toBlockType 
+--pure Builtin
+--where
+--toBlockType cs
+-- | false = Custom "asdf"
+-- | otherwise = Builtin
 
 parseMarkup :: String -> Either ParseError Markup
 parseMarkup mkup = map Markup (parseBlocks containers)
   where
   lines =
     L.fromFoldable
-      $ S.split (S.Pattern "\n") 
+      $ S.split (S.Pattern "\n")
       $ R.replace slashR ""
       $ tabsToSpaces mkup
   containers = parseContainers mempty lines
@@ -192,7 +189,6 @@ inlines = L.many inline2 <* eof
 
     referenceLink :: P LinkTarget
     referenceLink = ReferenceLink <$> optionMaybe ((fromCharArray <<< A.fromFoldable) <$> (string "[" *> manyTill anyChar (string "]")))
-
 
 alphaNumStr :: P Inline
 alphaNumStr = Str <$> someOf (isAlphaNum <<< codePointFromChar)

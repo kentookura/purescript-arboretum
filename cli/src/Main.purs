@@ -18,27 +18,37 @@ import Node.FS.Sync (readTextFile)
 import Markup.Parser (Doc, blockParser, BlockType)
 import Parsing (ParseError(..), runParser)
 
-getDocs :: String -> Effect (Either Error (Doc BlockType))
-getDocs path = do
+
+
+getDocument :: String -> Effect (Either Error (Doc BlockType))
+getDocument path = do
   res <- readTextFile UTF8 path
   case runParser res blockParser of
     Right m -> pure $ Right m
     Left (ParseError s _) -> pure $ Left (RequestContentError s)
+
+
 
 main :: Effect Unit
 main = launchAff_ do
   config@{ port, outputDirectory, sourceDirectories } <- liftEffect optionsParser
   logShow config
   liftEffect do
-    runEffectFn2 gazeImpl
-      (A.concatMap fileGlob sourceDirectories)
-      (\d -> do
-        docs <- getDocs d
+    watchDirectories
+
+--watchDirectories :: ?T
+watchDirectories :: Array String -> (String -> Array String) -> Effect Unit
+watchDirectories directories glob = 
+    (runEffectFn2 gazeImpl)
+      (A.concatMap glob directories)
+      (\(d :: String) -> do
+        docs <- getDocument d
         log d
         case docs of 
           Left l -> pure unit
           Right r -> logShow r
-      )
+      ) 
+
 
 fileGlob :: String -> Array String
 fileGlob dir = 

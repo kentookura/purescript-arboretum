@@ -1,2 +1,2 @@
-import { main } from "../output/Components.FileTree";
+import { main } from "../output/Main";
 main();

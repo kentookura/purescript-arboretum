@@ -13,7 +13,7 @@ import Deku.Control (text_, blank)
 import Deku.DOM as D
 import Markup.Contracts (Theorem, theorem)
 import Markup.Examples (raw)
-import Markup.Editor (editor)
+import Editor (editor)
 import Markup.Katex (defaultOptions)
 import Markup.Math (inline, display)
 import Markup.Penrose (viewSources)

@@ -27,6 +27,6 @@
   , "tuples"
   , "typelevel-prelude"
   ]
-, packages = (./spago.dhall).packages
-, sources = [ "cli/**/*.purs" ]
+, packages = (../spago.dhall).packages
+, sources = [ "src/**/*.purs" ]
 }

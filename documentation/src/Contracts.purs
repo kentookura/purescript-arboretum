@@ -2,11 +2,14 @@ module Contracts where
 
 import Prelude
 import Data.Array (intercalate)
+import Data.Either
+import Data.Foldable (foldl)
 import Data.Newtype (class Newtype)
 import Data.String (Pattern(..), split, toLower)
 import Record (union)
 import Router.Route (Route, routeToTitle)
 import Deku.Core (Nut)
+import Markup.Syntax (Markup)
 
 newtype Env = Env
   { routeLink :: Route -> Nut
@@ -22,6 +25,11 @@ newtype Page = Page
   }
 
 derive instance Newtype Page _
+
+data PageError
+
+--toPage :: Markup -> Page 
+--toPage m = (foldl ?w )
 
 page
   :: { route :: Route
@@ -92,3 +100,4 @@ subsection i = Subsection
   ( i `union`
       { id: intercalate "-" $ map toLower $ split (Pattern " ") i.title }
   )
+

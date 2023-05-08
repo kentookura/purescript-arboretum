@@ -1,4 +1,4 @@
-module Markup.Keyboard
+module Editor.Keyboard
   ( Key(..)
   , showKeyboardEvent
   , keyAction

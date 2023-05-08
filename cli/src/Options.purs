@@ -27,7 +27,6 @@ type Options_ a =
   , sourceDirectories :: Array String
   }
 
-
 type Options = Options_ (Maybe Int)
 
 defaultOptions :: Options

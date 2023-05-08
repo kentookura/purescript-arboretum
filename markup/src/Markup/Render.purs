@@ -35,7 +35,7 @@ renderInline =
     Emph is -> D.i_ $ A.fromFoldable (map renderInline is)
     Strong is -> D.strong_ $ A.fromFoldable (map renderInline is)
     Code bool str -> D.code_ [ text_ str ]
-    Link is (InlineLink tgt) -> D.a [href (pure tgt)] $ A.fromFoldable (map renderInline is)
+    Link is (InlineLink tgt) -> D.a [ href (pure tgt) ] $ A.fromFoldable (map renderInline is)
     Link is (ReferenceLink tgt) -> D.a_ $ A.fromFoldable (map renderInline is)
     Math s -> inline defaultOptions s
 

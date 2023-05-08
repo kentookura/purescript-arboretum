@@ -18,8 +18,8 @@ import Deku.Attribute ((!:=))
 import Deku.Control (text_)
 import Deku.Core (Nut)
 import Deku.DOM as D
-import Markup.Editable (class Editable)
-import Markup.Keyboard (Key(..))
+import Editor.Keyboard (Key(..))
+import Editor (class Editable)
 import Web.UIEvent.KeyboardEvent (key, ctrlKey)
 
 data StringZipper = StringZipper String String

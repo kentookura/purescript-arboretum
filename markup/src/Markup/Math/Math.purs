@@ -18,7 +18,7 @@ import Data.Tuple.Nested ((/\))
 import Deku.Attribute ((!:=), (:=), cb)
 import Deku.Attributes (klass_)
 import Deku.Control (guard, text, text_, (<$~>), (<#~>))
-import Deku.Core (dyn, Nut) 
+import Deku.Core (dyn, Nut)
 import Deku.DOM as D
 import Deku.Do as Deku
 import Deku.Hooks (useDyn, useState, useState', useHot')
@@ -156,10 +156,10 @@ editor =
           ]
           [ text_ "Toggle Display" ]
       , D.div
-            --D.OnMouseover !:= cb \e -> do
-            --  c <- controls
-            --do
-            --setControls c
+          --D.OnMouseover !:= cb \e -> do
+          --  c <- controls
+          --do
+          --setControls c
           [ D.OnMouseleave !:= cb \e -> do
               logShow "mouseleave"
           ]

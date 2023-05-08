@@ -1,9 +1,9 @@
 module Markup.Penrose
   ( homotopyStyle
-  , myProgram
-  , penroseExample
+  , examples
   , tabButton
   , viewSources
+  , render
   ) where
 
 import Prelude
@@ -36,18 +36,17 @@ type Substance = String
 type Style = String
 type Domain = String
 
-myProgram =
-  { domain: myDomain
-  , style: myStyle
-  , substance: mySubstance
-  , variation: myVariation
+examples =
+  { program:
+      { domain: myDomain
+      , style: myStyle
+      , substance: mySubstance
+      , variation: myVariation
+      }
   }
 
 homotopyExample :: Nut
 homotopyExample = render { domain: homotopyDomain, style: homotopyStyle, substance: homotopySubstance, variation: "" }
-
-penroseExample :: Nut
-penroseExample = render myProgram
 
 --render :: forall a. Diagram a => a -> Nut
 
@@ -61,7 +60,7 @@ render
 render p =
   D.span
     [ D.Self !:= \(elt :: Element) -> do
-        diagram p elt "pathresolver" (Just "Hello World!")
+        diagram p elt "pathresolver" (Just "This is a hello from the pathresolver")
     ]
     []
 
@@ -73,7 +72,7 @@ extension Style = ".sty"
 extension Domain = ".dom"
 
 tabButton :: String
-tabButton = "font-mono mb-0 flex w-full cursor-pointer items-center justify-center rounded-lg border-0 px-0 py-1 transition-all ease-in-out"
+tabButton = ""
 
 viewSources
   :: { domain :: String
@@ -92,10 +91,10 @@ viewSources p = Deku.do
           map
             ( \(Tuple ft ext) ->
                 D.li
-                    --let base = "flex-auto text-center"
+                  --let base = "flex-auto text-center"
                   [ klass_ "" ]
                   [ D.a
-                      [  klass_ tabButton
+                      [ klass_ tabButton
                       , click_ $ viewFile ft
                       ]
                       [ text_ ext ]

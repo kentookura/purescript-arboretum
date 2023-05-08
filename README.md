@@ -2,26 +2,18 @@
 
 Work in progress structure editing framework in purescript.
 
-## Work log
+`documentation` contains a copy of the [deku documentation](https://github.com/mikesol/deku-documentation) with some pages demonstrating some FFI bindings to [Penrose](https://penrose.cs.cmu.edu) and $\KaTeX$. Currently working on
 
-I want to have a list of dynamic components, to which we can add elements by clicking in the "codebase explorer".
+## [Demo](https://purescript-editor.netlify.app)
 
-```
-data CodebaseTree a
-  = Namespace String (Array (CodebaseTree a))
-  | Node a
-```
 
-## Current features:
 
-* Basic Markdown parsing. See `test/` for current capabilities.
-* Generate [Penrose Diagrams](https://penrose.cs.cmu.edu)
-* Render formulas using [KaTeX](https://katex.org)
+
+
 
 ## TODO
 
 Enhance links to support document transclusion
-
 Write a zipper for the Markdown AST.
 
 ### References/Inspiration
