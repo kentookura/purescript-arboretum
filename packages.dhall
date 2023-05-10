@@ -5,3 +5,5 @@ let upstream =
 in  upstream
   with markup = ./markup/spago.dhall as Location
   with editor = ./editor/spago.dhall as Location
+  with cli = ./cli/spago.dhall as Location
+  with server = ./server/spago.dhall as Location

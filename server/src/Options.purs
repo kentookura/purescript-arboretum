@@ -1,4 +1,4 @@
-module Options
+module API.Options
   ( options
   , optionsParser
   , Options
@@ -31,9 +31,9 @@ type Options = Options_ (Maybe Int)
 
 defaultOptions :: Options
 defaultOptions =
-  { port : Nothing
-  , outputDirectory : "output"
-  , sourceDirectories : []
+  { port: Nothing
+  , outputDirectory: "output"
+  , sourceDirectories: []
   }
 
 buildOptions :: Options -> { port :: Maybe Int, includes :: String, outputDirectory :: String } -> Options
@@ -59,21 +59,23 @@ options defaults = ado
             <> help "What port to start the server on"
         )
     )
-  outputDirectory <- strOption
-    ( long "output"
-        <> short 'O'
-        <> metavar "OUTPUT"
-        <> value "output"
-        <> help "Output directory for compiled HTML"
-    ) <|> pure "output"
+  outputDirectory <-
+    strOption
+      ( long "output"
+          <> short 'O'
+          <> metavar "OUTPUT"
+          <> value "output"
+          <> help "Output directory for compiled HTML"
+      ) <|> pure "output"
 
-  includes <- strOption
-    ( long "include"
-      <> short 'I'
-      <> help "Directories for additional source files, separated by `;`"
-      <> value ""
-      <> metavar "INCLUDES"
-    ) <|> pure ""
+  includes <-
+    strOption
+      ( long "include"
+          <> short 'I'
+          <> help "Directories for additional source files, separated by `;`"
+          <> value ""
+          <> metavar "INCLUDES"
+      ) <|> pure ""
   in
     buildOptions defaults { port, outputDirectory, includes }
 
@@ -86,18 +88,18 @@ optionsParser = do
   --    Process.exit 0
   --  Just os -> pure os
   where
-    opts defaults = info (options defaults <**> helper)
-      (fullDesc <> progDesc "Watches and compiles notes")
+  opts defaults = info (options defaults <**> helper)
+    (fullDesc <> progDesc "Watches and compiles notes")
 
 mkDefaultOptions :: Effect Options
-mkDefaultOptions = 
-  (defaultOptions {sourceDirectories = _})
+mkDefaultOptions =
+  (defaultOptions { sourceDirectories = _ })
     <$> scanDefaultDirectories
 
 scanDefaultDirectories :: Effect (Array String)
-scanDefaultDirectories = 
-  let 
-    defaultDirectories = ["notes"]
+scanDefaultDirectories =
+  let
+    defaultDirectories = [ "notes" ]
     mkGlob dir = dir <> "/**/*.md"
   in
     A.filterA (map (not <<< A.null) <<< gazeImpl <<< mkGlob) defaultDirectories
