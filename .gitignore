@@ -14,7 +14,7 @@ src/Markup/Penrose/Examples
 .vscode
 src/Sketches.purs
 
-markup/src/Markup/Penrose/Examples/
+packages/markup/src/Markup/Penrose/Examples/
 
 # Local Netlify folder
 .netlify
