@@ -10,27 +10,16 @@ When creating a new Spago project, you can use
 `spago init --no-comments` or `spago init -C`
 to generate this file without the comments in this block.
 -}
-{ name = "api"
+{ name = "my-project"
 , dependencies =
-  [ "affjax"
-  , "arrays"
+  [ "aff"
   , "console"
-  , "control"
   , "effect"
-  , "either"
-  , "foldable-traversable"
-  , "httpurple"
-  , "markup"
-  , "maybe"
-  , "node-buffer"
-  , "node-fs"
-  , "node-fs-aff"
-  , "node-process"
-  , "optparse"
-  , "parsing"
+  , "fetch"
+  , "fetch-yoga-json"
   , "prelude"
-  , "strings"
-  , "tuples"
+  , "routing-duplex"
+  , "server"
   ]
 , packages = (../../spago.dhall).packages
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

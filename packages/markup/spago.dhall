@@ -29,6 +29,6 @@
   , "web-html"
   , "web-uievents"
   ]
-, packages = (../spago.dhall).packages
+, packages = (../../spago.dhall).packages
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }

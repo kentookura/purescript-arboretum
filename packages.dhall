@@ -3,7 +3,7 @@ let upstream =
         sha256:968d8a0fe4e883bc13727e8d79dae8974732cde98971b883b55109d06c320ffe
 
 in  upstream
-  with markup = ./markup/spago.dhall as Location
-  with editor = ./editor/spago.dhall as Location
-  with cli = ./cli/spago.dhall as Location
-  with server = ./server/spago.dhall as Location
+  with markup = ./packages/markup/spago.dhall as Location
+  with editor = ./packages/editor/spago.dhall as Location
+  with cli = ./packages/cli/spago.dhall as Location
+  with server = ./packages/server/spago.dhall as Location
