@@ -1,12 +1,13 @@
-module API.Options
+module Options
   ( options
-  , optionsParser
   , Options
   , Options_
   ) where
 
 import Prelude
+import Backend
 
+import API
 import Control.Alt ((<|>))
 import Effect (Effect)
 import Effect.Console (log)
@@ -14,11 +15,10 @@ import Data.Array as A
 import Data.Foldable (sequence_)
 import Data.Maybe (Maybe(..), optional)
 import Data.String as S
-
 import Data.Array (replicate)
+import Effect.Uncurried (EffectFn2, runEffectFn2)
 import Options.Applicative
 import Data.Semigroup ((<>))
-
 import Node.Process as Process
 
 type Options_ a =
@@ -79,29 +79,47 @@ options defaults = ado
   in
     buildOptions defaults { port, outputDirectory, includes }
 
-optionsParser :: Effect Options
-optionsParser = do
-  defaults <- mkDefaultOptions
-  execParser (opts defaults) >>= pure
-  --case _ of
-  --  Nothing -> do
-  --    Process.exit 0
-  --  Just os -> pure os
-  where
-  opts defaults = info (options defaults <**> helper)
-    (fullDesc <> progDesc "Watches and compiles notes")
+--optionsParser :: Effect Options
+--optionsParser = do
+--  defaults <- mkDefaultOptions
+--  execParser (opts defaults) >>= pure
+--  --case _ of
+--  --  Nothing -> do
+--  --    Process.exit 0
+--  --  Just os -> pure os
+--  where
+--  opts defaults = info (options defaults <**> helper)
+--    (fullDesc <> progDesc "Watches and compiles notes")
+--
 
-mkDefaultOptions :: Effect Options
-mkDefaultOptions =
-  (defaultOptions { sourceDirectories = _ })
-    <$> scanDefaultDirectories
+--watchDirectories :: forall a. Options -> (String -> Array String) -> (String -> Effect a)-> Effect Unit
+--watchDirectories {sourceDirectories} glob f = 
+--  (runEffectFn2 gazeImpl)
+--    (A.concatMap glob sourceDirectories)
+--    (\(d :: String) -> do
+--      docs <- f d
+--      log "what to do"
+--    ) 
 
-scanDefaultDirectories :: Effect (Array String)
-scanDefaultDirectories =
+fileGlob :: String -> Array String
+fileGlob dir =
   let
-    defaultDirectories = [ "notes" ]
-    mkGlob dir = dir <> "/**/*.md"
+    go x = dir <> "/**/*" <> x
   in
-    A.filterA (map (not <<< A.null) <<< gazeImpl <<< mkGlob) defaultDirectories
+    go <$> [ ".md" ]
 
-foreign import gazeImpl :: String -> Effect (Array String)
+--scanDefaultDirectories :: Effect (Array String)
+--scanDefaultDirectories =
+--  let
+--    defaultDirectories = [ "notes" ]
+--    mkGlob dir = dir <> "/**/*.md"
+--  in
+--    A.filterA (map (not <<< A.null) <<< glob <<< mkGlob) defaultDirectories
+
+--mkDefaultOptions :: Effect Options
+--mkDefaultOptions =
+--  (defaultOptions { sourceDirectories = _ })
+--    <$> scanDefaultDirectories
+
+--foreign import gazeImpl :: EffectFn2 (Array String) (String -> Effect Unit) Unit
+--foreign import glob :: String -> Effect (Array String)
