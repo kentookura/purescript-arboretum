@@ -1,72 +1,63 @@
-module Frontend.Main
-  ( main
-  ) where
+module Frontend.Components.Sidebar where
 
-import Prelude hiding ((/))
+import Prelude
 
-import Frontend.Components.Sidebar (viewNamespace)
-
-import API
-import Control.Monad.Reader
-import Data.Either (Either)
+import Frontend.Components.Icon (icon)
+import Effect.Console (log)
+import Data.Tuple.Nested ((/\))
 import Deku.Attributes (klass_)
+import Deku.Control (text, text_, (<#~>), guard)
 import Deku.Core (Nut)
-import Deku.Control (text_)
-import Deku.Do as Deku
 import Deku.DOM as D
-import Deku.Hooks (useState)
+import Deku.Do as Deku
+import Deku.Hooks (useRef, useMailboxed, useState)
+import Deku.Listeners (click, click_, slider_)
 import Deku.Toplevel (runInBody)
-import Effect (Effect)
-import Effect.Aff (Aff, launchAff_)
-import Effect.Class (liftEffect)
-import Effect.Class.Console (logShow)
-import Fetch (Method(..), fetch, RequestMode(..))
-import HTTPurple
-import Routing.Duplex (print)
-import Fetch.Argonaut.Json (fromJson)
-import Markup.Namespace (Tree, Listing)
-import Markup.Parser (parseMarkup)
-import Markup.Syntax (Markup)
-import Parsing (ParseError)
-import Routing.Duplex
+import Markup.Namespace (Tree(..), Listing(..))
 
-main :: Effect Unit
-main = launchAff_ do
-  { json } <- get $ Namespaces "analysis"
-  namespace :: Tree Listing <- fromJson json
-  markdown <- get_ $ Docs "index"
-  logShow namespace
-  logShow markdown
-  liftEffect $
-    runInBody
-      ( Deku.do
-          viewNamespace namespace 
+viewNamespace :: Tree Listing -> Nut
+viewNamespace t = Deku.do
+  D.div [ klass_ "flex flex-column" ]
+    [ ( case t of
+          Node listing ->
+            Alt.do
+              D.a
+                [ klass_ "flex flex-row items-center cursor-pointer h-7"
+                , click_ $ log $ show listing
+                ]
+                [ D.span [ klass_ "text-center" ]
+                    [ --( case listing of
+                      --    Theorem _ -> icon "M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3"
+
+                      --    Markup _ -> icon "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+
+                      --    Definition _ -> icon "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                      --)
+                    ]
+                , D.div [ klass_ "ml-1" ] [ text_ $ show listing ]
+                ]
+
+          Namespace s ts ->
+            Deku.do
+              toggle /\ isOpen <- useState false
+              D.a
+                [ klass_ "flex flex-row items-center cursor-pointer h-7"
+                , click $ isOpen <#> not >>> toggle
+                ]
+                [ --isOpen <#~>
+                  --  if _ then
+                  --    icon "M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  --  else icon "M8.25 4.5l7.5 7.5-7.5 7.5"
+                D.div [ klass_ "ml-1" ] [ text_ s ]
+                , D.div [ klass_ "pl-4" ] (((guard isOpen <<< viewNamespace) <$> ts))
+                ]
       )
-
-apiURL :: String
-apiURL = "http://127.0.0.1"
-
-jsonHeaders = { "Content-Type": "application/json" }
-
-get :: Route -> Aff _
-get route = do
-  fetch (apiURL <> ":8080" <> (print api $ route))
-    { method: GET
-    , mode: Cors
-    , headers: jsonHeaders
-    }
-
-get_ :: Route -> Aff (Either ParseError Markup)
-get_ route = do
-  { text } <- fetch (apiURL <> ":8080" <> (print api $ route))
-    { method: GET
-    , headers: jsonHeaders
-    }
-  content <- text
-  pure $ parseMarkup content
+    ]
 {-
+--app :: {}
 type Env =
   { codebase :: Tree Listing
+  --, setCodebase :: (CodebaseTree Listing) -> Effect Unit
   }
 
 type App envB = Env -> envB -> Nut
@@ -94,8 +85,8 @@ app = do
       , mkWorkspace { codebase: analysis }
       ]
 
-app :: Nut
-app = Deku.do
+main :: Effect Unit
+main = runInBody Deku.do
   let initial = 50.0
   --setMailbox /\ mailbox <- useMailboxed
   setNum /\ num <- useState initial
@@ -117,6 +108,7 @@ app = Deku.do
     ]
 --app { codebase: algebra } {}
 
+{-
 workspace :: Nut
 workspace =
   Deku.do
