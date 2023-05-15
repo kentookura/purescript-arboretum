@@ -7,3 +7,5 @@ in  upstream
   with editor = ./packages/editor/spago.dhall as Location
   with cli = ./packages/cli/spago.dhall as Location
   with server = ./packages/server/spago.dhall as Location
+  with frontend = ./packages/frontend/spago.dhall as Location
+  with api = ./packages/api/spago.dhall as Location

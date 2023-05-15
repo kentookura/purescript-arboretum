@@ -10,16 +10,24 @@ When creating a new Spago project, you can use
 `spago init --no-comments` or `spago init -C`
 to generate this file without the comments in this block.
 -}
-{ name = "api"
+{ name = "server"
 , dependencies =
-  [ "affjax"
+  [ "aff"
+  , "affjax"
+  , "api"
+  , "argonaut"
+  , "argonaut-codecs"
+  , "argonaut-generic"
   , "arrays"
   , "console"
   , "control"
   , "effect"
   , "either"
+  , "fetch"
+  , "fetch-argonaut"
   , "foldable-traversable"
   , "httpurple"
+  , "httpurple-argonaut"
   , "markup"
   , "maybe"
   , "node-buffer"
