@@ -1,5 +1,7 @@
 module Backend
-  ( apiRouter
+  ( api
+  , apiRouter
+  , Route
   , getDocument
   , getNamespace
   , htmlHeader
@@ -8,7 +10,6 @@ module Backend
 
 import Prelude hiding ((/))
 
-import API
 import Affjax (Error(..))
 import Data.Array as A
 import Data.Either (Either(..))
@@ -40,6 +41,31 @@ import Parsing (ParseError(..), runParser)
 import Markup.Namespace
 import Markup.Parser (parseMarkup)
 import Markup.Syntax (Markup)
+
+import Data.Generic.Rep (class Generic)
+import Effect (Effect)
+import Routing.Duplex (RouteDuplex', string, segment)
+import Routing.Duplex.Generic (noArgs)
+import Routing.Duplex.Generic.Syntax ((/))
+import HTTPurple (mkRoute)
+
+
+type Reference = String
+data Route
+  = Home
+  | Src String
+  | Namespaces String
+  | Docs Reference
+
+derive instance Generic Route _
+
+api :: RouteDuplex' Route
+api = mkRoute
+  { "Home": noArgs
+  , "Src": "src" / string segment
+  , "Namespaces" : "namespaces" / string segment
+  , "Docs" : "doc" / string segment
+  }
 
 port :: Int
 port = 8080
