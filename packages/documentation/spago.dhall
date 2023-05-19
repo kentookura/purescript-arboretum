@@ -39,6 +39,6 @@
   , "markup"
   , "editor"
   ]
-, packages = ../packages.dhall
+, packages = (../..spago.dhall).packages
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
