@@ -1,6 +1,8 @@
 { name = "purescript-markup"
 , dependencies =
-  [ "arrays"
+  [ "argonaut-codecs"
+  , "argonaut-generic"
+  , "arrays"
   , "console"
   , "control"
   , "datetime"

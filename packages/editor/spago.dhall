@@ -15,13 +15,12 @@
   , "prelude"
   , "refs"
   , "strings"
-  , "textcursor"
   , "transformers"
   , "tuples"
   , "web-events"
   , "web-html"
   , "web-uievents"
   ]
-, packages = (../spago.dhall).packages
+, packages = ../../packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }

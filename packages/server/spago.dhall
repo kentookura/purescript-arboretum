@@ -14,7 +14,6 @@ to generate this file without the comments in this block.
 , dependencies =
   [ "aff"
   , "affjax"
-  , "api"
   , "argonaut"
   , "argonaut-codecs"
   , "argonaut-generic"
@@ -37,6 +36,7 @@ to generate this file without the comments in this block.
   , "optparse"
   , "parsing"
   , "prelude"
+  , "routing-duplex"
   , "strings"
   , "tuples"
   ]
