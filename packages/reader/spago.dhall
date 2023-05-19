@@ -1,4 +1,4 @@
-{ name = "documentation"
+{ name = "reader"
 , dependencies =
   [ "aff"
   , "arrays"
@@ -39,6 +39,6 @@
   , "markup"
   , "editor"
   ]
-, packages = (../..spago.dhall).packages
+, packages = ../../packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
