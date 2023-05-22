@@ -7,7 +7,6 @@ module Options
 import Prelude
 import Backend
 
-import API
 import Control.Alt ((<|>))
 import Effect (Effect)
 import Effect.Console (log)
