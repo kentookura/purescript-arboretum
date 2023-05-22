@@ -1,7 +1,6 @@
 { name = "my-project"
 , dependencies =
-  [ 
-  , "arrays"
+  [ "arrays"
   , "bifunctors"
   , "console"
   , "control"
@@ -15,6 +14,7 @@
   , "prelude"
   , "refs"
   , "strings"
+  , "textcursor"
   , "transformers"
   , "tuples"
   , "web-events"

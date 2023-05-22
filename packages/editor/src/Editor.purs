@@ -21,7 +21,6 @@ import Effect.Class.Console (logShow, log)
 import Editor.Keyboard (Key, keyAction)
 import Web.Event.Event (preventDefault)
 import Web.UIEvent.KeyboardEvent (toEvent)
-import Web.Util.TextCursor (TextCursor)
 
 class Editable a where
   view :: a -> Nut

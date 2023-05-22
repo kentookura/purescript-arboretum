@@ -114,11 +114,11 @@ keyAction e =
       | (key e == "Escape") = Escape
       | (key e == "Enter") = Enter
       | (key e == "PageUp") = PageUp
-      | (key e == "") = PageDown
+      | (key e == "PageDown") = PageDown
       | (key e == "Home") = GoToStartOfLine
       | (key e == "End") = GoToEndOfLine
-      | (key e == "") = GoToStartOfWord
-      | (key e == "") = GoToEndOfWord
+      | (key e == "ArrowLeft" && isCtrl) = GoToStartOfWord
+      | (key e == "ArrowRight" && isCtrl) = GoToEndOfWord
       | (key e == "") = CapsLock -- TODO
       | (key e == "Backspace") = Backspace
       | otherwise = Unhandled e
