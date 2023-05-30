@@ -5,7 +5,7 @@ Work in progress educational software framework in purescript. I was dissatisfie
 I have several goals while working on this project:
 
 * Enable collaborative work on mathematical content. Rather than being just about collaborative text creation, such as [Typst](https://typst.app), it should focus on the creation of non-linear documents. Users should be able to share new notes, definitions and theorems and be able to transclude them in other documents.
-* 
+* Explore the notion of structured editing in the context of mathematics, see also [polytope](https://github.com/vezwork/Polytope)
 
 ## Packages
 
@@ -16,6 +16,7 @@ This package defines an `Editable` type class and a `Deku` component which captu
 `Keyboard.purs`: Abstractions for working with the keyboard. 
 
 A big challenge is figuring out how to handle clicks to move the cursor. Maybe I stick with keyboard editing for now. I somehow need to measure the position of clicks.
+Also see [purescript-cofree-zipper](https://github.com/kentookura/purescript-cofree-zipper).
 
 ### Server 🖥️
 
