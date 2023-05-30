@@ -1,4 +1,4 @@
-# Structured Editing and Collaborative Mathematics
+# Mathematical Hypertext in Purescript
 
 Work in progress educational software framework in purescript. I was dissatisfied with the use of Moodle at my university, so I decided to work on something better suited for teaching mathematics. 
 
