@@ -1,24 +1,50 @@
-# Structured Editing with Purescript
+# Structured Editing and Collaborative Mathematics
 
-Work in progress structure editing framework in purescript.
+Work in progress educational software framework in purescript. I was dissatisfied with the use of Moodle at my university, so I decided to work on something better suited for teaching mathematics. 
 
-`documentation` contains a copy of the [deku documentation](https://github.com/mikesol/deku-documentation) with some pages demonstrating some FFI bindings to [Penrose](https://penrose.cs.cmu.edu) and $\KaTeX$. Currently working on
+I have several goals while working on this project:
 
-## [Demo](https://purescript-editor.netlify.app)
+* Enable collaborative work on mathematical content. Rather than being just about collaborative text creation, such as [Typst](https://typst.app), it should focus on the creation of non-linear documents. Users should be able to share new notes, definitions and theorems and be able to transclude them in other documents.
+* 
+
+## Packages
+
+### Editor ✏️ ️
+
+This package defines an `Editable` type class and a `Deku` component which captures keyboard events to edit an `Editable`.
+
+`Keyboard.purs`: Abstractions for working with the keyboard. 
+
+A big challenge is figuring out how to handle clicks to move the cursor. Maybe I stick with keyboard editing for now. I somehow need to measure the position of clicks.
+
+### Server 🖥️
+
+>❗ I will probably end up just using a pre-made backend like supabase
+
+For now this is just a playground for learning backend development and `httpurple`.
+
+### Frontend 🕹️
 
 
 
 
+### Reader 👓
 
+A fork of the [deku-documentation](https://github.com/mikesol/deku-documentation). Adds FFI to $\KaTeX$ and Penrose.
 
-## TODO
+TODO: Write a function `Markup -> Page`.
 
-Enhance links to support document transclusion
-Write a zipper for the Markdown AST.
+## Examples
 
-### References/Inspiration
+To run the e
 
-#### Elm 
+## Contributing
+
+Contributions are welcome!#
+
+## References/Inspiration
+
+### Elm 
 
 * [Elm RTE Tookit](https://github.com/mweiss/elm-rte-toolkit)
 
@@ -29,13 +55,13 @@ Write a zipper for the Markdown AST.
   "A compiled markup language". This might be just a parser combinator 
   library with good error message propagation?
 
-#### Rescript
+### Rescript
 
 * [darklang](https://github.com/darklang/classic-dark)
 
-  A good reference
+  A good reference for a structure editor
 
-#### Javascript/Typescript
+### Javascript/Typescript
 
 * [penrose](https://github.com/penrose/penrose),
 
@@ -45,7 +71,7 @@ Write a zipper for the Markdown AST.
 
   structure editor combinators and other things
 
-#### Papers
+### Papers
 
 * [Penrose](https://penrose.cs.cmu.edu/media/Penrose_SIGGRAPH2020a.pdf)
 * [hazel](https://github.com/hazelgrove/hazel)
