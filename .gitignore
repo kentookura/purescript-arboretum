@@ -14,6 +14,7 @@ backend
 src/Markup/Penrose/Examples
 .vscode
 src/Sketches.purs
+notes
 
 .purs-repl
 packages/markup/src/Markup/Penrose/Examples/
