@@ -1,4 +1,7 @@
-module Contracts where
+module Contracts
+  ( PageError
+  )
+  where
 
 import Prelude
 import Data.Array (intercalate)
@@ -29,7 +32,10 @@ derive instance Newtype Page _
 data PageError
 
 --toPage :: Markup -> Page 
---toPage m = (foldl ?w )
+--toPage (Markup bs) = go 0 bs where
+--  go :: Int -> List Block -> Page 
+--  go lvl bs = 
+
 
 page
   :: { route :: Route

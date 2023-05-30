@@ -3,7 +3,7 @@
   [ "aff"
   , "arrays"
   , "bifunctors"
-  , "control" 
+  , "control"
   , "console"
   , "decimals"
   , "deku"

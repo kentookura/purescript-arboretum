@@ -50,8 +50,8 @@ data Block
   | Rule
 
 data ListType
-  = Bullet String
-  | Ordered String
+  = Bullet String -- one of * + -
+  | Ordered String -- one of . )
 
 data CodeBlockType
   = Indented
@@ -161,6 +161,3 @@ instance showInline :: Show Inline where
 instance showLinkTarget :: Show LinkTarget where
   show (InlineLink uri) = "(InlineLink " <> show uri <> ")"
   show (ReferenceLink tgt) = "(ReferenceLink " <> show tgt <> ")"
-
-syntaxExample :: Markup
-syntaxExample = Markup (Header 1 (Str "Parse" : Space : Str "this" : Space : Str "Header!" : Nil) : Nil)

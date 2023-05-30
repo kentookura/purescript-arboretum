@@ -3,7 +3,8 @@ generated-docs
 node_modules
 .psci_modules
 .psci-ide-port
-dist
+/dist
+/packages/**/dist/
 output
 output-es
 .spago
@@ -14,8 +15,11 @@ src/Markup/Penrose/Examples
 .vscode
 src/Sketches.purs
 
+.purs-repl
 packages/markup/src/Markup/Penrose/Examples/
+packages/server/markdown
 
 # Local Netlify folder
 .netlify
+
 

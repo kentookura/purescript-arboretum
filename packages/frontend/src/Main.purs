@@ -1,4 +1,4 @@
-module Frontend.Main
+module Main
   ( main
   ) where
 
@@ -6,7 +6,7 @@ import Prelude hiding ((/))
 
 import Frontend.Components.Sidebar (viewNamespace)
 
-import API
+--import Backend (Route(..), api)
 import Control.Monad.Reader
 import Data.Either (Either)
 import Deku.Attributes (klass_)
@@ -21,14 +21,35 @@ import Effect.Aff (Aff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Fetch (Method(..), fetch, RequestMode(..))
-import HTTPurple
 import Routing.Duplex (print)
 import Fetch.Argonaut.Json (fromJson)
 import Markup.Namespace (Tree, Listing)
 import Markup.Parser (parseMarkup)
 import Markup.Syntax (Markup)
 import Parsing (ParseError)
-import Routing.Duplex
+import Data.Generic.Rep (class Generic)
+import Routing.Duplex (RouteDuplex', string, segment)
+import Routing.Duplex.Generic (noArgs)
+import Routing.Duplex.Generic.Syntax ((/))
+import HTTPurple (mkRoute)
+
+type Reference = String
+
+data Route
+  = Home
+  | Src String
+  | Namespaces String
+  | Docs Reference
+
+api :: RouteDuplex' Route
+api = mkRoute
+  { "Home": noArgs
+  , "Src": "src" / string segment
+  , "Namespaces" : "namespaces" / string segment
+  , "Docs" : "doc" / string segment
+  }
+
+derive instance Generic Route _
 
 main :: Effect Unit
 main = launchAff_ do

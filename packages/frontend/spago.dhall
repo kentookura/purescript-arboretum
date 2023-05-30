@@ -13,6 +13,7 @@
   , "prelude"
   , "routing-duplex"
   , "server"
+  , "supabase"
   , "transformers"
   , "tuples"
   ]
